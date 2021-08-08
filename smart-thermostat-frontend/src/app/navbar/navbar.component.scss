@@ -1,0 +1,38 @@
+@use "../../sizes";
+@use "../../colors";
+
+:host {
+  display: grid;
+  height: sizes.$navbar-height;
+  background-color: colors.$accent;
+  color: white;
+  grid-template-columns: 1fr auto;
+}
+
+.current-temp {
+  font-size: 14px;
+  color: colors.$over-accent-light;
+}
+
+#left-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 16px;
+}
+
+a{
+  color: white;
+  text-decoration: none;
+  padding: 0 16px;
+  line-height: sizes.$navbar-height;
+}
+
+#right-nav{
+  display: flex;
+  flex-direction: row;
+
+  .active{
+    background-color: colors.$accent-darker;
+  }
+}

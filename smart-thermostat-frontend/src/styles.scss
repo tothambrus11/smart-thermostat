@@ -1,1 +1,83 @@
+@use "src/colors";
+
 /* You can add global styles to this file, and also import other style files */
+html, body{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-family: Quicksand, sans-serif;
+  font-weight: 600;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+h1,h2,h3,h4,h5,h6{
+  margin: 0;
+}
+
+h1{
+  font-size: 32px;
+  text-align: center;
+  font-weight: 400;
+}
+
+h2{
+  color: black;
+  font-size: 16px;
+}
+
+.page-title{
+  margin: 32px 0;
+}
+
+input[type=submit]{
+  background-color: colors.$accent;
+  color: white;
+
+  &:hover{
+    background-color: colors.$accent-darker;
+  }
+  &:focus{
+    outline: none; //2px dotted colors.$accent;
+  }
+}
+
+input{
+  height: 40px;
+  padding: 10px;
+  box-sizing: border-box;
+  font-family: inherit;
+  border: none;
+  font-weight: inherit;
+  border-radius: 0;
+  font-size: 16px;
+
+  &:focus{
+    outline: none; //2px solid colors.$accent;
+  }
+}
+
+.text-input{
+  background-color: colors.$input-bg;
+  color: #333;
+
+  &::placeholder{
+    color: colors.$inactive;
+  }
+}
+
+.info-text{
+  color: colors.$inactive;
+}
+
+.card-container{
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+
+  &>* {
+    box-sizing: border-box;
+    width: 800px;
+    max-width: calc(100% - 64px);
+  }
+}

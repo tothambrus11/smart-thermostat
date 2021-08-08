@@ -127,5 +127,8 @@
       }
     }
   },
-  "defaultProject": "smart-thermostat-frontend"
+  "defaultProject": "smart-thermostat-frontend",
+  "cli": {
+    "analytics": "6b07c089-6c82-4421-8c11-cd53a8b184f6"
+  }
 }

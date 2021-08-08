@@ -1,0 +1,30 @@
+@use "../../colors";
+
+:host{
+  display: block;
+  position: relative;
+  width: 100%;
+}
+input{
+  width: 100%;
+  color: #333;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+span{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translate(0,-50%);
+  color: colors.$inactive;
+}

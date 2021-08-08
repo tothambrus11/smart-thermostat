@@ -1,0 +1,19 @@
+<app-navbar activeTab="1"></app-navbar>
+<h1 class="page-title">Időzítések</h1>
+<div class="card-container">
+  <app-card>
+    <app-card-row>
+      <img src="/assets/sunny.svg">
+      <h2>Normális hőmérséklet:</h2>
+    </app-card-row>
+
+    <app-card-row>
+      <img src="/assets/info.svg">
+      <div class="info-text">Ez a hőmérséklet fog érvénybe lépni, ha semelyik másik intervallum nem aktív éppen. Ha egy időpontban egyszerre több intervallum is aktív lenne, akkor a sorban előbb lévő hőmérséklete fog aktiválódni.</div>
+    </app-card-row>
+
+    <app-temp-input></app-temp-input>
+
+  </app-card>
+
+</div>

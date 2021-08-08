@@ -24,8 +24,10 @@ Page page = HOME;
 float currentTemperature;
 float targetTemperature = 29.5;
 
+float scrollPos = 0;
 void redraw() {
     display.clear();
+    int menuPosInt;
 
     switch (page) {
         case HOME:
@@ -55,7 +57,12 @@ void redraw() {
                 display.drawString(10, 16 * row, "text " + String(row));
             }
 
-            display.drawVerticalLine(0,0,16);
+            menuPosInt = (int)scrollPos % 3;
+            if(menuPosInt < 0){
+                menuPosInt = 3+menuPosInt;
+            }
+
+            display.drawVerticalLine(0,menuPosInt*16,16);
             break;
 
         default:
@@ -130,12 +137,18 @@ void loop() {
     aState = digitalRead(A);
 
     if (aState != aLastState) {
-        if (digitalRead(B) != aState) {
-            targetTemperature += .05;
-        } else {
-            targetTemperature -= .05;
-        }
+        bool scrolledDown = digitalRead(B) != aState;
 
+        switch(page){
+            case HOME:
+                targetTemperature += scrolledDown ? .05 : -.05;
+                break;
+            case MAIN_MENU:
+                scrollPos += scrolledDown ? .5 : -.5;
+                break;
+            default:
+                break;
+        }
         redraw();
 
         Serial.println(targetTemperature);

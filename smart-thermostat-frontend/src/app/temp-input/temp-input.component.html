@@ -1,0 +1,10 @@
+<input type="number"
+       step="0.1"
+       class="text-input"
+       min="0"
+       max="40"
+       [value]="value"
+       (input)="valueChange.emit(value)">
+<span>
+  °C
+</span>

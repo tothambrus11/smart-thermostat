@@ -1,0 +1,14 @@
+<div id="left-nav">
+  <span>{{targetTemp}}°C</span>
+  <span [class.current-temp]="true">
+    <img src="/assets/up-arrow.svg" *ngIf="isHeating">
+    <img src="/assets/down-arrow.svg" *ngIf="!isHeating">{{currentTemp}}
+    <span>°C</span>
+  </span>
+</div>
+<div id="right-nav">
+  <a [class.active]="activeTab==1" routerLink="/intervals">Időzítések</a>
+  <a [class.active]="activeTab==2" routerLink="/stats">Statisztika</a>
+  <a [class.active]="activeTab==3" routerLink="/information">Információk</a>
+  <a routerLink="/logout">Kilépés</a>
+</div>
