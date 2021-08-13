@@ -8,14 +8,40 @@ import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 export class TempInputComponent implements OnInit {
 
   @Input()
-  value?:number
+  value?: number;
+
+  @Input()
+  placeholder = '';
 
   @Output()
-  valueChange: EventEmitter<number> = new EventEmitter()
+  valueChange: EventEmitter<number> = new EventEmitter();
 
-  constructor() { }
+  @Output()
+  changed: EventEmitter<number> = new EventEmitter<number>();
+
+  constructor() {
+  }
 
   ngOnInit(): void {
   }
 
+  plus(): void {
+    this.value ||= 0;
+    this.value *= 10;
+    this.value++;
+    this.value = Math.round(this.value);
+    this.value /= 10;
+    this.valueChange.emit(this.value);
+    this.changed.emit(this.value);
+  }
+
+  minus(): void {
+    this.value ||= 0;
+    this.value *= 10;
+    this.value--;
+    this.value = Math.round(this.value);
+    this.value /= 10;
+    this.valueChange.emit(this.value);
+    this.changed.emit(this.value);
+  }
 }

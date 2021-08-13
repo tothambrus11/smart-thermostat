@@ -1,19 +1,130 @@
-<app-navbar activeTab="1"></app-navbar>
+<app-navbar [activeTab]="1"></app-navbar>
 <h1 class="page-title">Időzítések</h1>
 <div class="card-container">
   <app-card>
     <app-card-row>
       <img src="/assets/sunny.svg">
-      <h2>Normális hőmérséklet:</h2>
+      <h2>Normális hőmérséklet</h2>
     </app-card-row>
 
     <app-card-row>
       <img src="/assets/info.svg">
-      <div class="info-text">Ez a hőmérséklet fog érvénybe lépni, ha semelyik másik intervallum nem aktív éppen. Ha egy időpontban egyszerre több intervallum is aktív lenne, akkor a sorban előbb lévő hőmérséklete fog aktiválódni.</div>
+      <div class="inactive-color-text">Ez a hőmérséklet fog érvénybe lépni, ha semelyik másik intervallum nem aktív
+        éppen. Ha egy
+        időpontban egyszerre több intervallum is aktív lenne, akkor a sorban előbb lévő hőmérséklete fog aktiválódni.
+      </div>
     </app-card-row>
 
-    <app-temp-input></app-temp-input>
-
+    <app-card-row>
+      <app-temp-input placeholder="hőmérséklet" [value]="intervalService.normalTemp"
+                      (changed)="saveNormalTemp($event)"></app-temp-input>
+    </app-card-row>
   </app-card>
 
+  <ng-container [ngSwitch]="interval.type" *ngFor="let interval of intervals">
+    <!-- NIGHT TEMP CARD -->
+    <app-card *ngSwitchCase="IntervalType.NIGHT">
+      <app-card-row>
+        <img src="/assets/moon.svg">
+        <h2>Éjszakai hőmérséklet</h2>
+      </app-card-row>
+
+      <app-card-row>
+        <img src="/assets/info.svg">
+        <div class="inactive-color-text">Ez a mód automatikusan aktiválódik a megadott intervallumban, de hamarabb is el
+          lehet indítani, vagy megállítani a készüléken elhelyezett gombbal.
+        </div>
+      </app-card-row>
+
+      <app-card-row>
+        <app-temp-input placeholder="hőmérséklet" [(value)]="interval.temperature"></app-temp-input>
+      </app-card-row>
+
+      <app-card-row>
+        <span class="inactive-color-text">Engedélyezve:</span>
+        <app-switch [(state)]="interval.enabled"></app-switch>
+      </app-card-row>
+
+      <app-card-row class="flex-wrap">
+        <div class="inactive-color-text">Intervallum:</div>
+        <app-input-time-interval [time1]="''|timeToString:interval.startHour!:interval.startMinute!"
+                                 [time2]="''|timeToString:interval.endHour!:interval.endMinute!">
+        </app-input-time-interval>
+      </app-card-row>
+    </app-card><!-- END NIGHT TEMP CARD -->
+
+    <!-- CUSTOM INTERVAL CARD -->
+    <app-card *ngSwitchCase="IntervalType.CUSTOM">
+      <app-card-row>
+        <img src="/assets/alarm.svg">
+        <h2>Saját intervallum</h2>
+      </app-card-row>
+
+      <app-card-row>
+        <app-temp-input placeholder="hőmérséklet" [(value)]="interval.temperature"></app-temp-input>
+      </app-card-row>
+
+      <app-card-row>
+        <span class="inactive-color-text">Engedélyezve:</span>
+        <app-switch [(state)]="interval.enabled"></app-switch>
+      </app-card-row>
+
+      <app-card-row>
+        <div class="inactive-color-text">Ismétlés:</div>
+        <app-dropdown-list [items]="frequencies"
+                           [selected]="interval.repetitionFrequency!"
+                           (selectedChange)="changedFrequency($event, interval)"
+                           ></app-dropdown-list>
+      </app-card-row>
+
+      <ng-container [ngSwitch]="interval.repetitionFrequency"><!-- SWITCH FREQUENCY -->
+        <!-- CASE DAILY -->
+        <app-card-row class="flex-wrap" *ngSwitchCase="RepetitionFrequency.DAILY">
+          <div class="inactive-color-text">Intervallum:</div>
+          <app-input-time-interval [time1]="''|timeToString:interval.startHour!:interval.startMinute!"
+                                   [time2]="''|timeToString:interval.endHour!:interval.endMinute!"></app-input-time-interval>
+        </app-card-row>
+
+        <!-- CASE WEEKLY -->
+        <div *ngSwitchCase="RepetitionFrequency.WEEKLY">
+          <app-select-days-of-week [(value)]="interval.daysOfWeek!"></app-select-days-of-week>
+        </div>
+
+        <!-- CASE NEVER -->
+        <app-card-row class="flex-wrap" *ngSwitchCase="RepetitionFrequency.NEVER">
+          <div class="inactive-color-text">Intervallum:</div>
+          <app-input-datetime-range [dateTime1]="''|dateToString:interval.startYear!:interval.startMonth!:interval.startDay!:interval.startHour!:interval.startMinute!"
+                                    [dateTime2]="''|dateToString:interval.endYear!:interval.endMonth!:interval.endDay!:interval.endHour!:interval.endMinute!"></app-input-datetime-range>
+        </app-card-row>
+
+      </ng-container>
+
+    </app-card>
+  </ng-container>
+
+
+  <!--app-card>
+    <app-card-row>
+      <img src="/assets/alarm.svg">
+      <h2>Saját intervallum</h2>
+    </app-card-row>
+
+    <app-card-row>
+      <app-temp-input placeholder="hőmérséklet"></app-temp-input>
+    </app-card-row>
+
+    <app-card-row>
+      <span class="inactive-color-text">Engedélyezve:</span>
+      <app-switch [(state)]=""></app-switch>
+    </app-card-row>
+    <app-card-row>
+      <div class="inactive-color-text">Ismétlés:</div>
+      <app-dropdown-list [items]="frequencies" [selected]="2"></app-dropdown-list>
+    </app-card-row>
+    <app-card-row class="flex-wrap">
+      <div class="inactive-color-text">Intervallum:</div>
+      <app-input-datetime-range ></app-input-datetime-range>
+    </app-card-row>
+
+  </app-card-->
 </div>

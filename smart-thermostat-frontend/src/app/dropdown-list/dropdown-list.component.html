@@ -1,0 +1,7 @@
+<div class="input dropdown" (click)="hidden=!hidden" tabindex="0" (blur)="hidden=true;">
+  <div class="current">{{items[selected]}}</div>
+  <div class="material-icons icon">arrow_drop_down</div>
+  <div class="dropdown-cont" [ngStyle]="hidden?{display:'none'}:{}">
+    <div class="item" *ngFor="let item of items" (click)="select(items.indexOf(item))">{{item}}</div>
+  </div>
+</div>

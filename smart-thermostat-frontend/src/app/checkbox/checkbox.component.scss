@@ -1,0 +1,26 @@
+@use "../../colors";
+
+:host {
+  user-select: none;
+}
+
+div {
+  border: 2px solid colors.$accent;
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.checked {
+    background-color: colors.$accent;
+  }
+
+  &:not(.checked) {
+
+    img {
+      visibility: hidden;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+@use "../../colors";
+$h: 20px;
+
+.switch{
+  width: 2 * $h;
+  height: $h;
+  background-color: #C4C4C4;
+  border-radius: $h / 2;
+  position: relative;
+  transition: .3s;
+}
+
+.inner{
+  border-radius: $h / 2;
+  background-color: colors.$inactive;
+  height: $h;
+  width: $h;
+  transition: .3s;
+}
+
+div.on{
+  background-color: colors.$accent-light;
+
+  .inner{
+    transform: translate($h,0);
+    background-color: colors.$accent;
+  }
+
+}

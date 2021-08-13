@@ -1,10 +1,16 @@
+<div class="icon-button" (click)="minus()">
+  remove
+</div>
+<div class="icon-button" (click)="plus()">add</div>
 <input type="number"
        step="0.1"
-       class="text-input"
+       class="input"
        min="0"
        max="40"
-       [value]="value"
-       (input)="valueChange.emit(value)">
+       [placeholder]="placeholder"
+       [(ngModel)]="value"
+       (input)="valueChange.emit(value)"
+       (change)="changed.emit(value)">
 <span>
   °C
 </span>

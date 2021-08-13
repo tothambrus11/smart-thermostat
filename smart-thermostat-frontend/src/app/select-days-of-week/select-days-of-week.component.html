@@ -1,0 +1,4 @@
+<div *ngFor="let dwn of daysWithNumber">
+  <span>{{dwn.day}}</span>
+  <app-checkbox [(value)]="values[dwn.index]" (valueChange)="onChange()"></app-checkbox>
+</div>

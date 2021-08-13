@@ -1,0 +1,38 @@
+@use "../../colors";
+
+.dropdown {
+  min-width: 200px;
+  position: relative;
+  user-select: none;
+  padding-right: 32px;
+
+  &:focus {
+    outline: 2px dashed colors.$accent;
+  }
+}
+
+.icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translate(50%, -50%);
+}
+
+.dropdown-cont {
+  width: 100%;
+  position: absolute;
+  top: 40px;
+  left: 0;
+  background-color: #fff;
+  box-shadow: 0 4px 4px 0 #00000040;
+}
+
+.item {
+  padding: 10px;
+  height: 40px;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: #eee
+  }
+}
