@@ -1,0 +1,18 @@
+<div class="overlay" *ngIf="alertService.alertMessage">
+  <div class="alert-cont">
+    <h2>{{alertService.alertMessage.title}}</h2>
+    <p>{{alertService.alertMessage.message}}</p>
+    <div class="btns">
+      <input *ngIf="alertService.alertMessage.showCancelButton"
+             type="button"
+             [value]="alertService.alertMessage.cancelButtonText"
+             (click)="cancel()">
+      <input *ngIf="alertService.alertMessage.showOkButton"
+             type="button"
+             [class.warning]="alertService.alertMessage.isWarning"
+             [value]="alertService.alertMessage.okButtonText"
+      (click)="ok()">
+    </div>
+  </div>
+</div>
+

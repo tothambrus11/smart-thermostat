@@ -1,17 +1,19 @@
 #include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
-#include <temp_sensor.h>
 
-#include "SSD1306Wire.h"  // legacy include: `#include "SSD1306.h"`
 #include "button.h"
 #include "images.h"
 #include "interval.h"
 #include "pages.h"
 #include "stringify.h"
 #include "timeout.h"
+#include "SSD1306Wire.h"
+#include "temp_sensor.h"
+#include "temp_regulator.h"
 
 SSD1306Wire display(0x3c, D2, D1);
+TempSensor tempSensor(0x45);
+TempRegulator tempRegulator;
 
-SHT30 tempSensor(0x45);
 
 Button okButton(D7);
 Button nightModeButton(D4);
@@ -76,11 +78,12 @@ void redraw() {
 bool aState;
 bool aLastState;
 
+
 #define A D5
 #define B D6
 
 void setup() {
-    Serial.begin(112500);
+    Serial.begin(9600);
 
     display.init();
 
@@ -117,7 +120,7 @@ void setup() {
     temperatureUpdateInterval.init(1000, []() {
         tempSensor.startUpdate([]() {
             currentTemperature = tempSensor.tempC;
-            digitalWrite(D8, currentTemperature < targetTemperature);
+            tempRegulator.regulateTemp();
 
             redraw();
         });
@@ -151,7 +154,6 @@ void loop() {
         }
         redraw();
 
-        Serial.println(targetTemperature);
     }
     aLastState = aState;
 }

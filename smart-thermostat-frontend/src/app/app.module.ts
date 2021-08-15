@@ -21,6 +21,8 @@ import { TimeToStringPipe } from './time-to-string.pipe';
 import { DateToStringPipe } from './date-to-string.pipe';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { SelectDaysOfWeekComponent } from './select-days-of-week/select-days-of-week.component';
+import { IntervalCardComponent } from './interval-card/interval-card.component';
+import { AlertComponent } from './alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,9 @@ import { SelectDaysOfWeekComponent } from './select-days-of-week/select-days-of-
     TimeToStringPipe,
     DateToStringPipe,
     CheckboxComponent,
-    SelectDaysOfWeekComponent
+    SelectDaysOfWeekComponent,
+    IntervalCardComponent,
+    AlertComponent
   ],
     imports: [
         BrowserModule,

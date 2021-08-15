@@ -40,6 +40,7 @@ export class TempService {
           startMinute: 10,
           endHour: 6,
           endMinute: 30,
+          order: 1
         },
         {
           enabled: false,
@@ -50,17 +51,19 @@ export class TempService {
           startMinute: 0,
           endHour: 14,
           endMinute: 30,
+          order: 2
         },
         {
           enabled: false,
-          temperature: 24.2,
+          temperature: 24.5,
           type: IntervalType.CUSTOM,
           repetitionFrequency: RepetitionFrequency.WEEKLY,
           startHour: 12,
           startMinute: 0,
           endHour: 14,
           endMinute: 30,
-          daysOfWeek: 4
+          daysOfWeek: 4,
+          order: 3
         },
         {
           enabled: false,
@@ -77,6 +80,7 @@ export class TempService {
           endDay: 3,
           endHour: 14,
           endMinute: 30,
+          order: 4
         }
       ]);
     });

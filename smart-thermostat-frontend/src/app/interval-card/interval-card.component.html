@@ -1,0 +1,8 @@
+<app-card (mouseleave)="selectedLmiContainer=false" (mouseover)="selectedLmiContainer=true" [class.hidden-order]="!selectedLmiContainer">
+  <div class="hover-field"></div>
+  <div [class.change-order-cont]="true" >
+    <div class="material-icons up" (click)="up.emit()">keyboard_arrow_up</div>
+    <div class="material-icons down" (click)="down.emit()">keyboard_arrow_down</div>
+  </div>
+  <ng-content></ng-content>
+</app-card>

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {DisplayedIntervalData, IntervalType, repetitionFrequenciesLocal, RepetitionFrequency} from '../interval';
+import {StoredInterval, IntervalType, repetitionFrequenciesLocal, RepetitionFrequency} from '../interval';
 import {TempService} from '../temp.service';
+import {AlertService} from '../alert.service';
 
 @Component({
   selector: 'app-intervals',
@@ -11,19 +12,16 @@ export class IntervalsComponent implements OnInit {
 
   frequencies = repetitionFrequenciesLocal.hu;
 
-  intervals: DisplayedIntervalData[] = [];
+  intervals: StoredInterval[] = [];
   IntervalType = IntervalType;
   RepetitionFrequency = RepetitionFrequency;
 
-  constructor(public intervalService: TempService) {
+  constructor(public intervalService: TempService, public alertService: AlertService) {
   }
 
   ngOnInit(): void {
     this.intervalService.getIntervalsStoredData().then(ivs => {
-      this.intervals = ivs.map((value, index) => {
-        (value as DisplayedIntervalData).order = index;
-        return value as DisplayedIntervalData;
-      });
+      this.intervals = ivs;
     });
   }
 
@@ -31,7 +29,7 @@ export class IntervalsComponent implements OnInit {
     this.intervalService.setNormalTemp(temp);
   }
 
-  changedFrequency(selectedIndex: number, interval: DisplayedIntervalData) {
+  changedFrequency(selectedIndex: number, interval: StoredInterval) {
     interval.repetitionFrequency = selectedIndex;
     interval.enabled = false;
 
@@ -39,12 +37,12 @@ export class IntervalsComponent implements OnInit {
       case RepetitionFrequency.NEVER:
         let d = new Date();
         interval.startYear = d.getFullYear();
-        interval.startMonth = d.getMonth()+1;
+        interval.startMonth = d.getMonth() + 1;
         interval.startDay = d.getDate();
         interval.startHour = d.getHours();
         interval.startMinute = d.getMinutes();
         interval.endYear = d.getFullYear();
-        interval.endMonth = d.getMonth()+1;
+        interval.endMonth = d.getMonth() + 1;
         interval.endDay = d.getDate();
         interval.endHour = d.getHours();
         interval.endMinute = d.getMinutes();
@@ -61,4 +59,40 @@ export class IntervalsComponent implements OnInit {
     }
   }
 
+  up(currentInterval: StoredInterval) {
+    for (let interval of this.intervals) {
+      if (interval.order == currentInterval.order - 1) {
+        interval.order++;
+        currentInterval.order--;
+        // todo save
+        break;
+      }
+    }
+  }
+
+  down(currentInterval: StoredInterval) {
+    for (let interval of this.intervals) {
+      if (interval.order == currentInterval.order + 1) {
+        interval.order--;
+        currentInterval.order++;
+        // todo save
+        break;
+      }
+    }
+  }
+
+  deleteInterval(interval: StoredInterval) {
+    this.alertService.alert({
+      title: 'Biztos törölni szeretnéd az intervallumot?',
+      message: 'Nem lehet visszavonni, vigyázz!',
+      icon: 'delete',
+      isWarning: true,
+      okButtonText: 'Törlés',
+      showOkButton: true,
+      showCancelButton: true,
+      onOk: () => {
+        //TODO implement
+      },
+    });
+  }
 }

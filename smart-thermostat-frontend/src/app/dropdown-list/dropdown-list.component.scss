@@ -24,7 +24,8 @@
   top: 40px;
   left: 0;
   background-color: #fff;
-  box-shadow: 0 4px 4px 0 #00000040;
+  box-shadow: 0 2px 4px 0 #00000040;
+  z-index: 1000;
 }
 
 .item {

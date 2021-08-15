@@ -1,8 +1,4 @@
 
-export interface DisplayedIntervalData extends StoredInterval {
-  order: number;
-}
-
 export interface StoredInterval {
   type: IntervalType;
   temperature: number;
@@ -19,6 +15,7 @@ export interface StoredInterval {
   endDay?: number;
   endHour?: number;
   endMinute?: number;
+  order: number;
 }
 
 export enum IntervalType{

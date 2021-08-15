@@ -7,7 +7,7 @@ $h: 20px;
   background-color: #C4C4C4;
   border-radius: $h / 2;
   position: relative;
-  transition: .3s;
+  transition: .2s;
 }
 
 .inner{
@@ -15,7 +15,7 @@ $h: 20px;
   background-color: colors.$inactive;
   height: $h;
   width: $h;
-  transition: .3s;
+  transition: .2s;
 }
 
 div.on{

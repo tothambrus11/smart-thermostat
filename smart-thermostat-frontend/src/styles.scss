@@ -2,7 +2,7 @@
 @use "material-icons";
 
 /* You can add global styles to this file, and also import other style files */
-html, body{
+html, body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -10,39 +10,50 @@ html, body{
   font-weight: 600;
   box-sizing: border-box;
   font-size: 16px;
+  scroll-behavior: smooth;
 }
-h1,h2,h3,h4,h5,h6{
+
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
-h1{
+h1 {
   font-size: 32px;
   text-align: center;
   font-weight: 400;
 }
 
-h2{
-  color: black;
+h2 {
+  color: #333;
   font-size: 16px;
 }
 
-.page-title{
+.page-title {
   margin: 32px 0;
 }
 
-input[type=submit]{
+input[type=submit], input[type=button] {
   background-color: colors.$accent;
   color: white;
 
-  &:hover{
+  &:hover {
     background-color: colors.$accent-darker;
   }
-  &:focus{
+
+  &:focus {
     outline: none; //2px dotted colors.$accent;
+  }
+
+  &.warning {
+    background-color: #cb0f0f;
+
+    &:hover {
+      background-color: #af1010;
+    }
   }
 }
 
-input{
+input {
   height: 40px;
   padding: 10px;
   box-sizing: border-box;
@@ -52,44 +63,45 @@ input{
   border-radius: 0;
   font-size: 16px;
 
-  &:focus{
+  &:focus {
     outline: none; //2px solid colors.$accent;
   }
 }
 
-.input{
+.input {
   height: 40px;
   padding: 10px;
   background-color: colors.$input-bg;
   color: #333;
   box-sizing: border-box;
 
-  &::placeholder{
+  &::placeholder {
     color: colors.$inactive;
   }
 }
 
-.inactive-color-text{
+.inactive-color-text {
   color: colors.$inactive;
 }
 
-.flex-wrap{
+.flex-wrap {
   flex-wrap: wrap;
 }
-.card-container{
+
+.card-container {
   display: flex;
   flex-direction: column;
   gap: 32px;
   align-items: center;
 
-  &>* {
+  & > * {
     box-sizing: border-box;
     width: 800px;
     max-width: calc(100% - 64px);
   }
 }
 
-.icon-button{
+.icon-button {
   @include material-icons.mat-icon;
   padding: 8px;
   border-radius: 50%;
@@ -97,11 +109,17 @@ input{
   color: colors.$inactive;
 
   &:hover {
-    color: black;
+    color: #333;
     background-color: #f0f0f0;
   }
 }
 
+.delete-icon {
+  position: absolute;
+  right: 20px;
+  top: 23px;
+
+}
 
 *::-webkit-scrollbar {
   height: 10px;

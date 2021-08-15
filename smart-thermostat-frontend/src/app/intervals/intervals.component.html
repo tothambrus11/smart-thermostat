@@ -23,7 +23,7 @@
 
   <ng-container [ngSwitch]="interval.type" *ngFor="let interval of intervals">
     <!-- NIGHT TEMP CARD -->
-    <app-card *ngSwitchCase="IntervalType.NIGHT">
+    <app-interval-card *ngSwitchCase="IntervalType.NIGHT" [ngStyle]="{order: interval.order}" (up)="up(interval)" (down)="down(interval)" [currentInterval]="interval">
       <app-card-row>
         <img src="/assets/moon.svg">
         <h2>Éjszakai hőmérséklet</h2>
@@ -51,10 +51,12 @@
                                  [time2]="''|timeToString:interval.endHour!:interval.endMinute!">
         </app-input-time-interval>
       </app-card-row>
-    </app-card><!-- END NIGHT TEMP CARD -->
+    </app-interval-card><!-- END NIGHT TEMP CARD -->
 
     <!-- CUSTOM INTERVAL CARD -->
-    <app-card *ngSwitchCase="IntervalType.CUSTOM">
+    <app-interval-card *ngSwitchCase="IntervalType.CUSTOM" [ngStyle]="{order: interval.order}" (up)="up(interval)" (down)="down(interval)" [currentInterval]="interval">
+      <div class="icon-button material-icons delete-icon" (click)="deleteInterval(interval)">delete</div>
+
       <app-card-row>
         <img src="/assets/alarm.svg">
         <h2>Saját intervallum</h2>
@@ -74,7 +76,7 @@
         <app-dropdown-list [items]="frequencies"
                            [selected]="interval.repetitionFrequency!"
                            (selectedChange)="changedFrequency($event, interval)"
-                           ></app-dropdown-list>
+        ></app-dropdown-list>
       </app-card-row>
 
       <ng-container [ngSwitch]="interval.repetitionFrequency"><!-- SWITCH FREQUENCY -->
@@ -93,13 +95,14 @@
         <!-- CASE NEVER -->
         <app-card-row class="flex-wrap" *ngSwitchCase="RepetitionFrequency.NEVER">
           <div class="inactive-color-text">Intervallum:</div>
-          <app-input-datetime-range [dateTime1]="''|dateToString:interval.startYear!:interval.startMonth!:interval.startDay!:interval.startHour!:interval.startMinute!"
-                                    [dateTime2]="''|dateToString:interval.endYear!:interval.endMonth!:interval.endDay!:interval.endHour!:interval.endMinute!"></app-input-datetime-range>
+          <app-input-datetime-range
+            [dateTime1]="''|dateToString:interval.startYear!:interval.startMonth!:interval.startDay!:interval.startHour!:interval.startMinute!"
+            [dateTime2]="''|dateToString:interval.endYear!:interval.endMonth!:interval.endDay!:interval.endHour!:interval.endMinute!"></app-input-datetime-range>
         </app-card-row>
 
       </ng-container>
 
-    </app-card>
+    </app-interval-card>
   </ng-container>
 
 
