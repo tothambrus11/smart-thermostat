@@ -113,10 +113,6 @@ void setup() {
         redraw();
     });
 
-    //while (sht30.get() != 0)
-    //    ;
-    //currentTemperature = //sht30.cTemp;
-
     temperatureUpdateInterval.init(1000, []() {
         tempSensor.startUpdate([]() {
             currentTemperature = tempSensor.tempC;
