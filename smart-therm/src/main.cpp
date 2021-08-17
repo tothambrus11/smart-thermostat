@@ -1,19 +1,25 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
 
+#include "ESPAsyncTCP.h"
+#include "ESPAsyncWebServer.h"
+#include "SSD1306Wire.h"
 #include "button.h"
+#include "config.h"
 #include "images.h"
 #include "interval.h"
+#include "ipupdate.h"
 #include "pages.h"
 #include "stringify.h"
-#include "timeout.h"
-#include "SSD1306Wire.h"
-#include "temp_sensor.h"
 #include "temp_regulator.h"
+#include "temp_sensor.h"
+#include "timeout.h"
+#include "routes/setup_routes.h"
 
 SSD1306Wire display(0x3c, D2, D1);
 TempSensor tempSensor(0x45);
 TempRegulator tempRegulator;
-
 
 Button okButton(D7);
 Button nightModeButton(D4);
@@ -60,11 +66,11 @@ void redraw() {
             }
 
             menuPosInt = (int)scrollPos % 3;
-            if(menuPosInt < 0){
-                menuPosInt = 3+menuPosInt;
+            if (menuPosInt < 0) {
+                menuPosInt = 3 + menuPosInt;
             }
 
-            display.drawVerticalLine(0,menuPosInt*16,16);
+            display.drawVerticalLine(0, menuPosInt * 16, 16);
             break;
 
         default:
@@ -78,9 +84,30 @@ void redraw() {
 bool aState;
 bool aLastState;
 
-
 #define A D5
 #define B D6
+
+AsyncWebServer server(3001);
+AsyncWebSocket ws("/ws");            // access at ws://[esp ip]/ws
+AsyncEventSource events("/events");  // event source (Server-Sent events)
+
+bool connectToWifi() {
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+    return WiFi.waitForConnectResult() == WL_CONNECTED;
+}
+
+void onBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    //Handle body
+}
+
+void onUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+    //Handle upload
+}
+
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+    //Handle WebSocket event
+}
 
 void setup() {
     Serial.begin(9600);
@@ -105,7 +132,7 @@ void setup() {
     });
 
     okButton.setOnPressListener([]() {
-        if(page == HOME){
+        if (page == HOME) {
             page = MAIN_MENU;
         } else {
             page = HOME;
@@ -125,6 +152,34 @@ void setup() {
     pinMode(D8, OUTPUT);
 
     Serial.println("Hello world!");
+
+    if (!connectToWifi()) {
+        Serial.println("WIFI connection failed");
+    }
+
+    configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+
+    // attach AsyncWebSocket
+    ws.onEvent(onEvent);
+    server.addHandler(&ws);
+
+    // attach AsyncEventSource
+    server.addHandler(&events);
+
+    setupRoutes();
+
+    // Catch-All Handlers
+    // Any request that can not find a Handler that canHandle it
+    // ends in the callbacks below.
+    server.onFileUpload(onUpload);
+    server.onRequestBody(onBody);
+
+    
+
+    server.begin();
+    updateIp();
+
+    Serial.println("Server is ready");
 }
 
 int counter = 0;
@@ -138,7 +193,7 @@ void loop() {
     if (aState != aLastState) {
         bool scrolledDown = digitalRead(B) != aState;
 
-        switch(page){
+        switch (page) {
             case HOME:
                 targetTemperature += scrolledDown ? .05 : -.05;
                 break;
@@ -149,7 +204,7 @@ void loop() {
                 break;
         }
         redraw();
-
     }
     aLastState = aState;
+
 }
