@@ -1,4 +1,6 @@
 <?php
+header('Access-Control-Allow-Origin: *');
+
 function badRequest() {
     http_response_code(400);
     die("Bad request");

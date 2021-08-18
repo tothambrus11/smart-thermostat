@@ -4,7 +4,7 @@ import {NgModule} from '@angular/core';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {LoginComponent} from './login/login.component';
-import {FormsModule} from "@angular/forms";
+import {FormsModule} from '@angular/forms';
 import {NavbarComponent} from './navbar/navbar.component';
 import {IntervalsComponent} from './intervals/intervals.component';
 import {InformationComponent} from './information/information.component';
@@ -17,12 +17,13 @@ import {SwitchComponent} from './switch/switch.component';
 import {InputTimeIntervalComponent} from './input-time-interval/input-time-interval.component';
 import {DropdownListComponent} from './dropdown-list/dropdown-list.component';
 import {InputDatetimeRangeComponent} from './input-datetime-range/input-datetime-range.component';
-import { TimeToStringPipe } from './time-to-string.pipe';
-import { DateToStringPipe } from './date-to-string.pipe';
-import { CheckboxComponent } from './checkbox/checkbox.component';
-import { SelectDaysOfWeekComponent } from './select-days-of-week/select-days-of-week.component';
-import { IntervalCardComponent } from './interval-card/interval-card.component';
-import { AlertComponent } from './alert/alert.component';
+import {TimeToStringPipe} from './time-to-string.pipe';
+import {DateToStringPipe} from './date-to-string.pipe';
+import {CheckboxComponent} from './checkbox/checkbox.component';
+import {SelectDaysOfWeekComponent} from './select-days-of-week/select-days-of-week.component';
+import {IntervalCardComponent} from './interval-card/interval-card.component';
+import {AlertComponent} from './alert/alert.component';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -47,12 +48,14 @@ import { AlertComponent } from './alert/alert.component';
     IntervalCardComponent,
     AlertComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        FormsModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

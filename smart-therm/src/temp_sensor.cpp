@@ -5,7 +5,7 @@ TempSensor::TempSensor(uint8_t address) {
     _address = address;
 }
 
-int TempSensor::startUpdate(std::function<void()> callback) {
+int TempSensor::startUpdate(const std::function<void()>& callback) {
     unsigned int data[6];
 
     // Start I2C Transmission
@@ -27,8 +27,8 @@ int TempSensor::startUpdate(std::function<void()> callback) {
     };
 
     // Convert the data
-    tempC = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45;
-    humidity = ((((data[3] * 256.0) + data[4]) * 100) / 65535.0);
+    tempC = (((data[0] * 256.0) + data[1]) * 175 / 65535.0) - 45;
+    humidity = (((data[3] * 256.0) + data[4]) * 100) / 65535.0;
 
     callback();
     return 0;

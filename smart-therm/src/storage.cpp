@@ -1,5 +1,6 @@
 #include <Arduino.h>  // for type definitions
 #include <EEPROM.h>   // We need this library
+#include "storage.h"
 
 const unsigned int CORRUPTION_CHECK_VALUE = 12345678;
 
@@ -21,10 +22,6 @@ int EEPROM_readAnything(int ee, T& value) {
         *p++ = EEPROM.read(ee++);
     return i;
 }
-
-struct StoredData{
-    unsigned int corruptionCheck;
-};
 
 StoredData storedData;
 

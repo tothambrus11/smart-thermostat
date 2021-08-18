@@ -1,5 +1,7 @@
 import {Injectable} from '@angular/core';
 import {IntervalType, RepetitionFrequency, StoredInterval} from './interval';
+import {HttpClient} from '@angular/common/http';
+import {environment} from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -7,11 +9,27 @@ import {IntervalType, RepetitionFrequency, StoredInterval} from './interval';
 export class TempService {
 
   normalTemp = 0;
+  currentTemp = 0;
+  isHeating = false;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.getNormalTemp().then(t => {
       this.normalTemp = t;
     });
+
+    setInterval(async () => {
+      try {
+        this.currentTemp = await this.getCurrentTemp();
+        this.isHeating = this.currentTemp < 26;
+      } catch (e) {
+
+      }
+    }, 2000);
+  }
+
+  async getCurrentTemp(): Promise<number> {
+    let temp = await this.http.get(`${environment.backendURL}get-temp`, {responseType: 'text'}).toPromise();
+    return Number(temp);
   }
 
   async updateNormalTemp() {

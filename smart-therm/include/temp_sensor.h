@@ -7,12 +7,11 @@ class TempSensor {
     uint8_t _address;
 
    public:
-    TempSensor(uint8_t address);
+    explicit TempSensor(uint8_t address);
 
     float tempC;
     float humidity;
 
-    int startUpdate(std::function<void()> callback);
+    int startUpdate(const std::function<void()>& callback);
 
-    void onLoop();
 };

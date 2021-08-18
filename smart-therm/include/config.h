@@ -1,5 +1,5 @@
-#ifndef CONFIGDEFINED
-#define CONFIGDEFINED = 1
+#ifndef CONFIG_DEFINED
+#define CONFIG_DEFINED = 1
 
 extern const char* ssid;
 extern const char* password;

@@ -8,14 +8,12 @@ import {TempService} from '../temp.service';
 })
 export class NavbarComponent implements OnInit {
 
-  currentTemp = 23.5;
-  targetTemp = 25.0;
-  isHeating = true;
+  targetTemp = 26.0;
 
   @Input()
   activeTab!: number;
 
-  constructor(private intervalService: TempService) {
+  constructor(public tempService: TempService) {
 
   }
 

@@ -1,8 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
+#include <Wire.h>
 
-#include "ESPAsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 #include "SSD1306Wire.h"
 #include "button.h"
@@ -16,6 +15,8 @@
 #include "temp_sensor.h"
 #include "timeout.h"
 #include "routes/setup_routes.h"
+#include "storage.h"
+#include "stored_images.h"
 
 SSD1306Wire display(0x3c, D2, D1);
 TempSensor tempSensor(0x45);
@@ -33,9 +34,10 @@ float currentTemperature;
 float targetTemperature = 29.5;
 
 float scrollPos = 0;
+
 void redraw() {
     display.clear();
-    int menuPosInt;
+    short menuPosInt;
 
     switch (page) {
         case HOME:
@@ -65,9 +67,9 @@ void redraw() {
                 display.drawString(10, 16 * row, "text " + String(row));
             }
 
-            menuPosInt = (int)scrollPos % 3;
+            menuPosInt = (short) scrollPos % 3;
             if (menuPosInt < 0) {
-                menuPosInt = 3 + menuPosInt;
+                menuPosInt += 3;
             }
 
             display.drawVerticalLine(0, menuPosInt * 16, 16);
@@ -76,7 +78,7 @@ void redraw() {
         default:
 
             break;
-    };
+    }
 
     display.display();
 }
@@ -101,11 +103,13 @@ void onBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t in
     //Handle body
 }
 
-void onUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+void
+onUpload(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
     //Handle upload
 }
 
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+void onEvent(AsyncWebSocket *asyncWebSocket, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data,
+             size_t len) {
     //Handle WebSocket event
 }
 
@@ -138,7 +142,9 @@ void setup() {
             page = HOME;
         }
         redraw();
+
     });
+
 
     temperatureUpdateInterval.init(1000, []() {
         tempSensor.startUpdate([]() {
@@ -155,31 +161,30 @@ void setup() {
 
     if (!connectToWifi()) {
         Serial.println("WIFI connection failed");
+    } else {
+        configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+
+        // attach AsyncWebSocket
+        ws.onEvent(onEvent);
+        server.addHandler(&ws);
+
+        // attach AsyncEventSource
+        server.addHandler(&events);
+
+        setupRoutes();
+
+        // Catch-All Handlers
+        // Any request that can not find a Handler that canHandle it
+        // ends in the callbacks below.
+        server.onFileUpload(onUpload);
+        server.onRequestBody(onBody);
+
+        server.begin();
+        updateIp();
+
+        Serial.println("Server is ready");
     }
 
-    configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
-
-    // attach AsyncWebSocket
-    ws.onEvent(onEvent);
-    server.addHandler(&ws);
-
-    // attach AsyncEventSource
-    server.addHandler(&events);
-
-    setupRoutes();
-
-    // Catch-All Handlers
-    // Any request that can not find a Handler that canHandle it
-    // ends in the callbacks below.
-    server.onFileUpload(onUpload);
-    server.onRequestBody(onBody);
-
-    
-
-    server.begin();
-    updateIp();
-
-    Serial.println("Server is ready");
 }
 
 int counter = 0;
@@ -208,3 +213,4 @@ void loop() {
     aLastState = aState;
 
 }
+
