@@ -35,7 +35,7 @@ export class TempService {
   }
 
   startEventListening() {
-    let eventSource = new EventSource(`localhost:3001/events`);
+    let eventSource = new EventSource(`${this.config.serverBaseURl}events`);
 
     eventSource.addEventListener('temperature', (e: any) => {
       this.currentTemp = Number(e.data);
