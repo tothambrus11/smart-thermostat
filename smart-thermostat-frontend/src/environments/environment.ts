@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  backendURL: 'https://johetajava.hu/ip-update/gateway/palagyithermostat/3001/'
+  ipID: 'palagyithermostat',
+  backendPort: 3001,
 };
 
 /*

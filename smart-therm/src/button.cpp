@@ -1,22 +1,24 @@
 #include <Arduino.h>
 #include "button.h"
-#include "vector"
 
-std::vector<Button*> buttons;
+std::vector<Button *> Button::buttons = std::vector<Button *>();
 
 Button::Button(int _pinNumber) {
     pinNumber = _pinNumber;
-    buttons.push_back(this);
+}
+
+void Button::init(){
+    Button::buttons.push_back(this);
 }
 
 void Button::checkAll() {
-    for (unsigned int i = 0; i < buttons.size(); i++) {
-        buttons[i]->check();
+    for (auto &button : Button::buttons) {
+        button->check();
     }
 }
 
-void Button::setOnPressListener(std::function<void()> onPress) {
-    this->onPress = onPress;
+void Button::setOnPressListener(std::function<void()> onPress_) {
+    this->onPress = std::move(onPress_);
 }
 
 void Button::removeOnPressListener() {
@@ -24,7 +26,7 @@ void Button::removeOnPressListener() {
 }
 
 void Button::check() {
-    this->prevIsPressed = isPressed;
+    prevIsPressed = isPressed;
     isPressed = !digitalRead(pinNumber);
 
     if (isPressed && !prevIsPressed && millis() - lastPressedAt > 250) {

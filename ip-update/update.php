@@ -15,6 +15,9 @@ if (!$ip) {
     http_response_code(400);
     die("Bad request");
 }
+
+const HELLO = "hello";
+
 function connect(){
     try {
         return new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME, DB_USER, DB_PASS);
@@ -37,7 +40,7 @@ $result = $q->fetch(PDO::FETCH_ASSOC)['password_hash'];
 
 if (!password_verify($password, $result)) {
     http_response_code(401);
-    die("Unauthorized - wrong credentials");
+    die("Unauthorized - wrong credentials" );
 }
 
 //$a = $conn->prepare("UPDATE " . DB_TABLE_PREFIX . "ip_update SET ip = ? WHERE name = ?");

@@ -12,7 +12,7 @@ set(CMAKE_CONFIGURATION_TYPES "d1_mini" CACHE STRING "Build Types reflect Platfo
 
 SET(CMAKE_C_COMPILER "$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-gcc.exe")
 SET(CMAKE_CXX_COMPILER "$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.platformio/packages/toolchain-xtensa/bin/xtensa-lx106-elf-g++.exe")
-SET(CMAKE_CXX_FLAGS "-std=gnu++11 -fno-rtti -std=gnu++17 -fno-exceptions -Os -mlongcalls -mtext-section-literals -falign-functions=4 -U__STRICT_ANSI__ -D_GNU_SOURCE -ffunction-sections -fdata-sections -Wall -Werror=return-type -free -fipa-pta")
+SET(CMAKE_CXX_FLAGS "-fno-rtti -std=gnu++17 -fno-exceptions -Os -mlongcalls -mtext-section-literals -falign-functions=4 -U__STRICT_ANSI__ -D_GNU_SOURCE -ffunction-sections -fdata-sections -Wall -Werror=return-type -free -fipa-pta")
 SET(CMAKE_C_FLAGS "-std=gnu17 -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -Os -mlongcalls -mtext-section-literals -falign-functions=4 -U__STRICT_ANSI__ -D_GNU_SOURCE -ffunction-sections -fdata-sections -Wall -Werror=return-type -free -fipa-pta")
 
 SET(CMAKE_C_STANDARD 17)
@@ -40,6 +40,7 @@ if (CMAKE_BUILD_TYPE MATCHES "d1_mini")
 
     include_directories("${CMAKE_CURRENT_LIST_DIR}/include")
     include_directories("${CMAKE_CURRENT_LIST_DIR}/src")
+    include_directories("${CMAKE_CURRENT_LIST_DIR}/.pio/libdeps/d1_mini/RotaryEncoder/src")
     include_directories("$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.platformio/packages/framework-arduinoespressif8266/libraries/EEPROM")
     include_directories("$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266mDNS/src")
     include_directories("$ENV{HOMEDRIVE}$ENV{HOMEPATH}/.platformio/packages/framework-arduinoespressif8266/libraries/ESP8266HTTPClient/src")

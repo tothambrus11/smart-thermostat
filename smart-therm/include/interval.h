@@ -6,8 +6,9 @@ class Interval {
     bool isStopped = false;
 
    public:
-    long interval;
-    long lastOccurredAt = 0;
+    static std::vector<Interval *> intervals;
+    unsigned long interval;
+    unsigned long lastOccurredAt = 0;
 
     void init(long interval, std::function<void()> callback);
 
@@ -15,7 +16,7 @@ class Interval {
 
     void restart();
 
-    void check(long millis);
+    void check(unsigned long millis);
 
     static void checkAll();
 };

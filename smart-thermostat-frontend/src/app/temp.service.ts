@@ -2,6 +2,8 @@ import {Injectable} from '@angular/core';
 import {IntervalType, RepetitionFrequency, StoredInterval} from './interval';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
+import {ConfigService} from './config.service';
+import {config, Observable, Subscriber} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,23 +14,65 @@ export class TempService {
   currentTemp = 0;
   isHeating = false;
 
-  constructor(private http: HttpClient) {
+  $currentTemp: Observable<number>;
+
+  constructor(private http: HttpClient, private config: ConfigService) {
+
     this.getNormalTemp().then(t => {
       this.normalTemp = t;
     });
 
-    setInterval(async () => {
-      try {
-        this.currentTemp = await this.getCurrentTemp();
-        this.isHeating = this.currentTemp < 26;
-      } catch (e) {
+    let currentTempSubscriber: Subscriber<number>;
+    this.$currentTemp = new Observable<number>(s => {
+      currentTempSubscriber = s;
+    });
 
+    if (window.EventSource) {
+      this.startEventListening();
+    } else {
+      this.startHttpTempUpdateInterval();
+    }
+  }
+
+  startEventListening() {
+    let eventSource = new EventSource(`localhost:3001/events`);
+
+    eventSource.addEventListener('temperature', (e: any) => {
+      this.currentTemp = Number(e.data);
+    });
+
+    eventSource.addEventListener('open', e => {
+      console.log('Events Connected');
+    }, false);
+
+    eventSource.addEventListener('error', (e: any) => {
+      console.log(e.target);
+      if (e.target.readyState !== EventSource.OPEN) {
+        console.log('Events Disconnected');
       }
-    }, 2000);
+    }, false);
+
+    eventSource.addEventListener('message', e => {
+      console.log('message', e.data);
+    }, false);
+
+
+  }
+
+  startHttpTempUpdateInterval() {
+    setInterval(async () => {
+      this.getCurrentTemp()
+        .then(res => {
+          this.currentTemp = Number(res);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }, 1000);
   }
 
   async getCurrentTemp(): Promise<number> {
-    let temp = await this.http.get(`${environment.backendURL}get-temp`, {responseType: 'text'}).toPromise();
+    let temp = await this.http.get(`${this.config.serverBaseURl}get-temp`, {responseType: 'text'}).toPromise();
     return Number(temp);
   }
 
