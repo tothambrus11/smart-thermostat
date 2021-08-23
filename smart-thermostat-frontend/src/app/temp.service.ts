@@ -11,20 +11,15 @@ import {config, Observable, Subscriber} from 'rxjs';
 export class TempService {
 
   normalTemp = 0;
+  targetTemp = 28.5;
   currentTemp = 0;
-  isHeating = false;
 
-  $currentTemp: Observable<number>;
+  isHeating = false;
 
   constructor(private http: HttpClient, private config: ConfigService) {
 
     this.getNormalTemp().then(t => {
       this.normalTemp = t;
-    });
-
-    let currentTempSubscriber: Subscriber<number>;
-    this.$currentTemp = new Observable<number>(s => {
-      currentTempSubscriber = s;
     });
 
     if (window.EventSource) {
@@ -43,7 +38,7 @@ export class TempService {
 
     eventSource.addEventListener('open', e => {
       console.log('Events Connected');
-    }, false);
+    });
 
     eventSource.addEventListener('error', (e: any) => {
       console.log(e.target);
@@ -55,8 +50,6 @@ export class TempService {
     eventSource.addEventListener('message', e => {
       console.log('message', e.data);
     }, false);
-
-
   }
 
   startHttpTempUpdateInterval() {

@@ -5,5 +5,7 @@ extern const char* ssid;
 extern const char* password;
 extern const char* ipUpdatePassword;
 extern const char* ipUpdateIdName;
+extern const char* apSSID;
+extern const char* apPassword;
 
 #endif

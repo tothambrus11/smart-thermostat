@@ -26,6 +26,7 @@ import {AlertComponent} from './alert/alert.component';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {ConfigService} from './config.service';
 import {APP_INITIALIZER} from '@angular/core';
+import { TempCircleComponent } from './temp-circle/temp-circle.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import {APP_INITIALIZER} from '@angular/core';
     CheckboxComponent,
     SelectDaysOfWeekComponent,
     IntervalCardComponent,
-    AlertComponent
+    AlertComponent,
+    TempCircleComponent
   ],
   imports: [
     BrowserModule,

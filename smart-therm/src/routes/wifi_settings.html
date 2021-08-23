@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wifi Settings</title>
+    <style>
+        * {
+            font-family: "Century Gothic", Arial, sans-serif;
+            font-weight: 100;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        html, body {
+            min-height: 100vh;
+            overflow-y: auto;
+            margin: 0;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .big-cont {
+            padding: 32px;
+            margin: 32px;
+            display: grid;
+            gap: 16px;
+            max-width: 450px;
+            box-shadow: 0 4px 4px 0 #00000040;
+            background-color: #F8F8F8;
+        }
+
+        input {
+            display: block;
+            height: 40px;
+            border: 0;
+            background-color: #ededed;
+            font-size: 16px;
+            padding: 0 8px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #015694;
+            color: white;
+            border: 0;
+            outline: none;
+            font-size: 16px;
+        }
+
+        button:hover {
+            filter: brightness(.9);
+        }
+
+        #ok, #error {
+            box-shadow: 0 1px 4px #00000044;
+            padding: 16px;
+            position: fixed;
+            bottom: -100px;
+            transition: .6s;
+            font-size: 18px;
+            right: 16px;
+        }
+
+        #ok {
+            color: white;
+            background-color: green;
+        }
+
+        #error {
+
+        }
+
+        .shown {
+            bottom: 16px !important;
+        }
+    </style>
+
+</head>
+<body>
+<div class="big-cont">
+    <h1>Wifi beállítása</h1>
+    <input id="wifi_ssid" type="text" value="%wifi_ssid%" placeholder="SSID">
+    <input id="wifi_pass" type="password" value="%wifi_pass%" placeholder="Jelszó">
+    <h1>Hozzáférési pont beállítása</h1>
+    <input id="ap_ssid" type="text" value="%ap_ssid%" placeholder="SSID">
+    <input id="ap_pass" type="password" value="%ap_pass%" placeholder="Jelszó">
+    <button onclick="submit()">Mentés</button>
+</div>
+<div id="ok" onclick="showHide('ok', false)">✔ Sikeres mentés!</div>
+<div id="error" onclick="showHide('error', 'false')">Sikertelen mentés.</div>
+
+<script>
+    async function postData(url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            body: data
+        });
+        return response.text();
+    }
+
+    function submit() {
+        let data = new FormData();
+
+        data.append("wifi_ssid", document.getElementById("wifi_ssid").value);
+        data.append("wifi_pass", document.getElementById("wifi_pass").value);
+        data.append("ap_ssid", document.getElementById("ap_ssid").value);
+        data.append("ap_pass", document.getElementById("ap_pass").value);
+
+        postData("/save-wifi-settings", data).catch(e => {
+            console.log(e);
+            alert("Failed saving");
+        });
+    }
+
+
+    function showHide(elId, state) {
+        if (state) {
+            document.getElementById(elId).classList.add("shown");
+        } else {
+            document.getElementById(elId).classList.remove("shown");
+        }
+    }
+
+    setTimeout(() => {
+
+        showHide("ok", true);
+        setTimeout(() => {
+            showHide("ok", false)
+        }, 2000);
+    }, 10);
+
+
+</script>
+</body>
+</html>

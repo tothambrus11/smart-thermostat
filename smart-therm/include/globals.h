@@ -8,6 +8,7 @@ extern SSD1306Wire display;
 extern TempSensor tempSensor;
 extern TempRegulator tempRegulator;
 extern AsyncWebServer server;
+extern AsyncWebServer localServer;
 extern Page page;
 extern bool isNightMode;
 extern float targetTemperature;

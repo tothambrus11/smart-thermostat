@@ -13,8 +13,7 @@ void redraw() {
 
             display.drawFastImage(108, 25, 16, 16, isNightMode ? epd_bitmap_hold : epd_bitmap_sun);
 
-            //display.drawCircle(64 + (int)((targetTemperature-29.5)*10), 31, 16);
-            if (tempSensor.tempC < targetTemperature) {
+            if (tempRegulator.goingUp) {
                 display.drawFastImage(20, 15, 16, 16, epd_bitmap_nyil);
             } else if (tempSensor.tempC > targetTemperature) {
                 display.drawFastImage(20, 15, 16, 16, epd_bitmap_nyil_le);

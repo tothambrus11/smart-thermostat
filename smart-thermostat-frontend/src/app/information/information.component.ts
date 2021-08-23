@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {TempService} from '../temp.service';
 
 @Component({
   selector: 'app-information',
@@ -7,7 +8,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class InformationComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }
