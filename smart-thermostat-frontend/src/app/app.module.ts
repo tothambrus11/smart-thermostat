@@ -27,6 +27,7 @@ import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {ConfigService} from './config.service';
 import {APP_INITIALIZER} from '@angular/core';
 import { TempCircleComponent } from './temp-circle/temp-circle.component';
+import { TempPipe } from './temp.pipe';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { TempCircleComponent } from './temp-circle/temp-circle.component';
     SelectDaysOfWeekComponent,
     IntervalCardComponent,
     AlertComponent,
-    TempCircleComponent
+    TempCircleComponent,
+    TempPipe
   ],
   imports: [
     BrowserModule,

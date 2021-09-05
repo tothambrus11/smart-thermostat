@@ -8,8 +8,6 @@ import {TempService} from '../temp.service';
 })
 export class NavbarComponent implements OnInit {
 
-  targetTemp = 26.0;
-
   @Input()
   activeTab!: number;
 

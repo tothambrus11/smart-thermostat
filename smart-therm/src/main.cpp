@@ -11,12 +11,12 @@
 #include "ipupdate.h"
 #include "pages.h"
 #include "temp_regulator.h"
-#include "temp_sensor.h"
 #include "timeout.h"
 #include "routes/setup_routes.h"
 #include "storage.h"
 #include "drawer.h"
 #include "local_server/index.h"
+#include "temp_sensor.h"
 
 #define PIN_NIGHT_MODE_BTN D4
 #define PIN_ENCODER_A D5
@@ -27,97 +27,109 @@
 #define PIN_RELAY D8
 
 SSD1306Wire display(0x3c, PIN_SDA, PIN_SCL);
-TempSensor tempSensor(0x45);
 TempRegulator tempRegulator(PIN_RELAY);
 Encoder encoder(PIN_ENCODER_A, PIN_ENCODER_B);
+TempSensor tempSensor;
 
 Button okButton(PIN_ENCODER_PUSH);
 Button nightModeButton(PIN_NIGHT_MODE_BTN);
 
 Interval temperatureUpdateInterval;
+Interval temperatureReadInterval;
 
 bool isNightMode = false;
 Page page = HOME;
+String drawnMessage = "";
 
-float targetTemperature = 29.5;
 float scrollPos = 0;
+float tempC = 0;
 
 AsyncWebServer server(3001);
 AsyncWebSocket ws("/ws");            // access at ws://[esp ip]/ws
 AsyncEventSource events("/events");  // event source (Server-Sent events)
 
-bool connectToWifi() {
-    WiFi.begin(ssid, password);
-    return WiFi.waitForConnectResult(10000) == WL_CONNECTED;
-}
 
-void onBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-    //Handle body
-}
+void setupPins();
 
-void
-onUpload(AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
-    //Handle upload
-}
-
-void onEvent(AsyncWebSocket *asyncWebSocket, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data,
-             size_t len) {
-    //Handle WebSocket event
-}
+inline bool waitForConnection();
 
 void setup() {
     Serial.begin(9600);
+    EEPROM.begin(4096);
+    readData();
+    checkDataCorruption();
 
     display.init();
-
-    display.flipScreenVertically();
+    // display.flipScreenVertically();
     display.setContrast(255);
 
-    pinMode(D4, INPUT_PULLUP);
-    pinMode(PIN_ENCODER_A, INPUT_PULLUP);
-    pinMode(PIN_ENCODER_B, INPUT_PULLUP);
-    pinMode(D7, INPUT_PULLUP);
-
-    EEPROM.begin(4096);
+    setupPins();
 
 
-    redraw();
+    drawMessage("Starting...");
 
+    // SETTING UP SENSORS ==========================================
+
+    okButton.init();
+    nightModeButton.init();
+
+    WiFi.mode(WIFI_AP_STA);
+
+    // SETTING UP WIFI =============================================
+
+    WiFi.softAP(String(storedData.wifiAP.ssid).substring(0, storedData.wifiAP.ssidLength),
+                String(storedData.wifiAP.password).substring(0, storedData.wifiAP.passwordLength));
+
+    WiFi.begin(String(storedData.connectedWifi.ssid).substring(0, storedData.connectedWifi.ssidLength),
+               String(storedData.connectedWifi.password).substring(0, storedData.connectedWifi.passwordLength));
+
+    drawMessage("Connecting to wifi...");
+
+    if (!waitForConnection()) {
+        Serial.println("WIFI connection failed");
+        drawMessage("WIFI connection\n failed");
+        delay(3000);
+    } else {
+        configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+    }
+    page = HOME;
+
+
+    server.addHandler(&events);        // attach AsyncEventSource
+
+    setupRoutes();
+    setupLocalServer();
+
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+
+    server.begin();
+    updateIp();
+
+    // BUTTON HANDLERS
     nightModeButton.setOnPressListener([]() {
         isNightMode = !isNightMode;
         redraw();
     });
 
     okButton.setOnPressListener([]() {
-        Serial.println("ok pressed");
-        if (page == HOME) {
-            page = MAIN_MENU;
-        } else {
-            page = HOME;
-        }
+        if (page == HOME) page = MAIN_MENU;
+        else page = HOME;
+
         redraw();
-
     });
 
-    okButton.init();
-    nightModeButton.init();
+    tempRegulator.setTargetTemp(27.5);
 
-
-    temperatureUpdateInterval.init(1000, []() {
-        tempSensor.startUpdate([]() {
-            tempRegulator.regulateTemp();
-
-            redraw();
-            events.send(String(tempSensor.tempC).c_str(), "temperature", millis());
-        });
+    events.onConnect([](AsyncEventSourceClient *client) {
+        client->send(String(tempSensor.temp).c_str(), "temperature", millis());
+        client->send(String(tempRegulator.getTargetTemp()).c_str(), "target_temperature", millis());
     });
-
 
     encoder.setOnEventListener([](bool scrolledDown) {
-        Serial.println(targetTemperature);
         switch (page) {
             case HOME:
-                targetTemperature += scrolledDown ? .1 : -.1;
+                tempRegulator.setTargetTemp(tempRegulator.getTargetTemp() + (scrolledDown ? .1f : -.1f));
+                events.send(String(tempRegulator.getTargetTemp()).c_str(), "target_temperature", millis());
                 break;
             case MAIN_MENU:
                 scrollPos += scrolledDown ? 1 : -1;
@@ -129,43 +141,21 @@ void setup() {
         redraw();
     });
 
-    pinMode(D8, OUTPUT);
+    tempSensor.begin([](float temp) {
+        tempC = temp;
+        tempRegulator.regulateTemp();
 
-    Serial.println("Hello world!");
+        if (page == HOME) redraw();
+        events.send(String(tempC).c_str(), "temperature", millis());
+    });
 
-    WiFi.mode(WIFI_AP_STA);
+    temperatureUpdateInterval.init(1000, []() {
+        tempSensor.readTemperature();
+    });
 
-    WiFi.softAP(apSSID, apPassword);
-    if (!connectToWifi()) {
-        Serial.println("WIFI connection failed");
-    } else {
-        configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
-    }
-
-
-    ws.onEvent(onEvent);        // attach AsyncWebSocket
-    server.addHandler(&ws);
-    server.addHandler(&events);        // attach AsyncEventSource
-
-    server.onFileUpload(onUpload);
-    server.onRequestBody(onBody);
-
-    setupRoutes();
-    setupLocalServer();
-
-    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
-
-    server.begin();
-    updateIp();
-
-    Serial.println("Server is ready");
-
-    readData();
-    checkDataCorruption();
-
-    readData();
-    checkDataCorruption();
-
+    temperatureReadInterval.init(10, [](){
+       tempSensor.onInterval();
+    });
 }
 
 void loop() {
@@ -174,3 +164,14 @@ void loop() {
     encoder.onLoop();
 }
 
+void setupPins() {
+    pinMode(PIN_ENCODER_PUSH, INPUT_PULLUP);
+    pinMode(PIN_NIGHT_MODE_BTN, INPUT_PULLUP);
+    pinMode(PIN_ENCODER_A, INPUT_PULLUP);
+    pinMode(PIN_ENCODER_B, INPUT_PULLUP);
+    pinMode(PIN_RELAY, OUTPUT);
+}
+
+inline bool waitForConnection() {
+    return WiFi.waitForConnectResult(10000) == WL_CONNECTED;
+}

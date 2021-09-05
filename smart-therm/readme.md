@@ -1,10 +1,7 @@
-# Memory usage
+# Access point info
+- Connect to the wifi (default credentials can be found in storage.ccp, in clearData())
+- Local server http://192.168.4.1/
+- Do not open 80 port to the public!
 
-## Temp Intervals (20 byte / interval, minimum 2 intervals)
-* 1 byte - type (normal / night / custom)
-* 4 byte float - temp
-* 1 byte char - enabled
-* 4 byte 4xchar - interval
-* 1 byte days of week
-* 1 byte repetition frequency (daily, weekly, never)
-* 8 byte date interval
+Here you can set up the thermostat to connect to a local Wi-Fi, and you can also change the Access Point credentials. When you save your changes, the thermostat will restart.
+![img.png](img.png)

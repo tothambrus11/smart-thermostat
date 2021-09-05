@@ -1,7 +1,17 @@
 <div [class.glowing-circle]="true">
   <div class="inner-circle">
     <div class="big-text">
-      <div class="small-text"></div>
+      {{tempService.targetTemp | temp}}°C
+      <div class="small-text">
+        <svg width="8" height="11" viewBox="0 0 8 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="0.421814" width="2" height="10" rx="1"/>
+          <rect x="2.57812" y="1.41418" width="2" height="5.59653" rx="1" transform="rotate(-45 2.57812 1.41418)"/>
+          <rect width="2" height="5.56923" rx="1"
+                transform="matrix(-0.707107 -0.707107 -0.707107 0.707107 5.35205 1.43353)"/>
+        </svg>
+
+        {{tempService.currentTemp | temp:2}}°C
+      </div>
     </div>
   </div>
 </div>

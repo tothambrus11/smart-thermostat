@@ -6,10 +6,12 @@ class TempRegulator {
 
 private:
     const unsigned char relayPin;
+    inline void setRelayState(bool state);
+
+protected:
     float targetTemp;
     float targetTempUpperLimit;
     float targetTempLowerLimit;
-    inline void setRelayState(bool state);
 
 public:
     bool goingUp;
@@ -18,8 +20,9 @@ public:
 
     void regulateTemp();
 
-    void setTargetTemp(float &temperature);
+    void setTargetTemp(float temperature);
 
+    float getTargetTemp();
 };
 
 #endif

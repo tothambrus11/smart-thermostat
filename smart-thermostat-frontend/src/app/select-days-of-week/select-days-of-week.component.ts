@@ -58,6 +58,7 @@ export class SelectDaysOfWeekComponent implements OnInit {
   onChange(){
     this.value = bitsToNumber(this.values);
     this.valueChange.emit(this.value);
+    console.log(this.value)
   }
 
 }

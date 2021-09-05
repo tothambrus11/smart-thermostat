@@ -15,38 +15,51 @@ void redraw() {
 
             if (tempRegulator.goingUp) {
                 display.drawFastImage(20, 15, 16, 16, epd_bitmap_nyil);
-            } else if (tempSensor.tempC > targetTemperature) {
+            } else if (tempC > tempRegulator.getTargetTemp()) {
                 display.drawFastImage(20, 15, 16, 16, epd_bitmap_nyil_le);
             }
 
             display.setTextAlignment(TEXT_ALIGN_RIGHT);
             display.setFont(ArialMT_Plain_16);
-            display.drawString(82, 15, stringify(targetTemperature) + "°C");
+            display.drawString(82, 15, stringify(tempRegulator.getTargetTemp()) + "°C");
 
             display.setFont(ArialMT_Plain_24);
 
-            display.drawString(82, 32, stringify(tempSensor.tempC) + "°C");
+            display.drawString(82, 32, stringify(tempC) + "°C");
             break;
 
-            case MAIN_MENU:
-                display.setFont(ArialMT_Plain_16);
-                display.setTextAlignment(TEXT_ALIGN_LEFT);
-                for (uint8_t row = 0; row < 3; row++) {
-                    display.drawString(10, 16 * row, "text " + String(row));
-                }
+        case MAIN_MENU:
+            display.setFont(ArialMT_Plain_16);
+            display.setTextAlignment(TEXT_ALIGN_LEFT);
+            for (uint8_t row = 0; row < 3; row++) {
+                display.drawString(10, 16 * row, "text " + String(row));
+            }
 
-                menuPosInt = (short) scrollPos % 3;
-                if (menuPosInt < 0) {
-                    menuPosInt += 3;
-                }
+            menuPosInt = (short) scrollPos % 3;
+            if (menuPosInt < 0) {
+                menuPosInt += 3;
+            }
 
-                display.drawVerticalLine(0, menuPosInt * 16, 16);
-                break;
+            display.drawVerticalLine(0, menuPosInt * 16, 16);
+            break;
 
-                default:
+        case DRAW_MESSAGE:
+            display.setFont(ArialMT_Plain_16);
+            display.setTextAlignment(TEXT_ALIGN_LEFT);
+            display.drawString(0, 0, drawnMessage);
+            break;
 
-                    break;
+        default:
+
+            break;
+
     }
 
     display.display();
+}
+
+void drawMessage(String message){
+    drawnMessage = message;
+    page = DRAW_MESSAGE;
+    redraw();
 }

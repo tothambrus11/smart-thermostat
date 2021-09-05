@@ -30,10 +30,7 @@ void Button::check() {
     isPressed = !digitalRead(pinNumber);
 
     if (isPressed && !prevIsPressed && millis() - lastPressedAt > 250) {
-        Serial.println(String(pinNumber) + "HWWWWWWW " + String(isPressed) + " " + String(prevIsPressed));
-
         if (onPress != nullptr) {
-            Serial.println("ooooo");
             lastPressedAt = millis();
             onPress();
         }

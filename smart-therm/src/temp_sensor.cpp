@@ -1,35 +1,76 @@
 #include "temp_sensor.h"
+#include "Wire.h"
 
-TempSensor::TempSensor(uint8_t address) {
+TempSensor::TempSensor() {}
+
+void TempSensor::begin(std::function<void(float temp)> _onResult) {
+    onResult = std::move(_onResult);
     Wire.begin();
-    _address = address;
 }
 
-int TempSensor::startUpdate(const std::function<void()>& callback) {
-    unsigned int data[6];
-
-    // Start I2C Transmission
-    Wire.beginTransmission(_address);
-    // Send measurement command
-    Wire.write(0x2C);
-    Wire.write(0x06);
-    // Stop I2C transmission
-    if (Wire.endTransmission() != 0)
-        return 1;
-
-    // Request 6 bytes of data
-    Wire.requestFrom(_address, (uint8_t)6);
-
-    // Read 6 bytes of data
-    // cTemp msb, cTemp lsb, cTemp crc, humidity msb, humidity lsb, humidity crc
-    for (int i = 0; i < 6; i++) {
-        data[i] = Wire.read();
-    };
-
-    // Convert the data
-    tempC = (((data[0] * 256.0) + data[1]) * 175 / 65535.0) - 45;
-    humidity = (((data[3] * 256.0) + data[4]) * 100) / 65535.0;
-
-    callback();
-    return 0;
+void TempSensor::readTemperature() {
+    readRawValue(TRIGGER_TEMP_MEASURE_NOHOLD);
 }
+
+void TempSensor::readHumidity() {
+    readRawValue(TRIGGER_HUMD_MEASURE_NOHOLD);
+}
+
+void TempSensor::processRawTemp(uint16_t rawTemp){
+    temp = rawTemp * (175.72f / 65536.0f) - 46.85f;
+    onResult(temp);
+}
+
+void TempSensor::readRawValue(bool readTemp) {
+    Wire.beginTransmission(HTU21D_ADDRESS);
+    Wire.write(readTemp ? TRIGGER_TEMP_MEASURE_NOHOLD : TRIGGER_HUMD_MEASURE_NOHOLD); //Measure value (prefer no hold!)
+    Wire.endTransmission();
+
+    if(readTemp){
+        waitingForTempResult = true;
+    } else {
+        waitingForHumidityResult = true;
+    }
+}
+
+void TempSensor::onInterval() {
+    if (waitingForTempResult) {
+        bool validResult = (3 == Wire.requestFrom(HTU21D_ADDRESS, 3));
+
+        if(validResult){
+            waitingForTempResult = false;
+            attemptCount = 0;
+            byte msb = Wire.read();
+            byte lsb = Wire.read();
+            byte checksum = Wire.read();
+
+            uint16_t rawValue = ((uint16_t) msb << 8) | (uint16_t) lsb;
+
+            if (checkCRC(rawValue, checksum) != 0) return;
+
+            processRawTemp(rawValue & 0xFFFC);
+        } else {
+            attemptCount++;
+        }
+
+        if(attemptCount >= 10){
+            waitingForTempResult = false;
+            attemptCount = 0;
+        }
+    }
+}
+
+byte TempSensor::checkCRC(uint16_t message_from_sensor, uint8_t check_value_from_sensor) {
+    auto remainder = (uint32_t) message_from_sensor << 8;
+    remainder |= check_value_from_sensor; //Add on the check value
+
+    auto divisor = (uint32_t) SHIFTED_DIVISOR;
+
+    for (int i = 0; i < 16; i++) {
+        if (remainder & (uint32_t) 1 << (23 - i)) { remainder ^= divisor; }
+        divisor >>= 1;
+    }
+
+    return (byte) remainder;
+}
+

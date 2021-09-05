@@ -1,9 +1,7 @@
 import {Injectable} from '@angular/core';
 import {IntervalType, RepetitionFrequency, StoredInterval} from './interval';
 import {HttpClient} from '@angular/common/http';
-import {environment} from '../environments/environment';
 import {ConfigService} from './config.service';
-import {config, Observable, Subscriber} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,16 +9,20 @@ import {config, Observable, Subscriber} from 'rxjs';
 export class TempService {
 
   normalTemp = 0;
-  targetTemp = 28.5;
+  targetTemp = 0;
   currentTemp = 0;
-
-  isHeating = false;
+  isHeating = true;
 
   constructor(private http: HttpClient, private config: ConfigService) {
 
     this.getNormalTemp().then(t => {
       this.normalTemp = t;
     });
+
+    this.getTargetTemp().then(t=>{
+      this.targetTemp = t;
+    });
+
 
     if (window.EventSource) {
       this.startEventListening();
@@ -36,6 +38,14 @@ export class TempService {
       this.currentTemp = Number(e.data);
     });
 
+    eventSource.addEventListener('target_temperature', (e: any) => {
+      this.targetTemp = Number(e.data);
+    });
+
+    eventSource.addEventListener('is_heating', (e:any)=>{
+      this.isHeating = e.data == "1";
+    });
+
     eventSource.addEventListener('open', e => {
       console.log('Events Connected');
     });
@@ -45,10 +55,6 @@ export class TempService {
       if (e.target.readyState !== EventSource.OPEN) {
         console.log('Events Disconnected');
       }
-    }, false);
-
-    eventSource.addEventListener('message', e => {
-      console.log('message', e.data);
     }, false);
   }
 
@@ -139,5 +145,15 @@ export class TempService {
         }
       ]);
     });
+  }
+
+  async getTargetTemp(): Promise<number> {
+    let temp = await this.http.get(`${this.config.serverBaseURl}get-target-temp`, {responseType: 'text'}).toPromise();
+    return Number(temp);
+  }
+
+  async getIsHeating(): Promise<boolean> {
+    let temp = await this.http.get(`${this.config.serverBaseURl}get-is-heating`, {responseType: 'text'}).toPromise();
+    return temp == "1";
   }
 }

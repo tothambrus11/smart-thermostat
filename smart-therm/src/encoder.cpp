@@ -1,4 +1,3 @@
-
 #include "encoder.h"
 #include "Arduino.h"
 
@@ -11,18 +10,17 @@ Encoder::Encoder(int pinA_, int pinB_) {
 }
 
 void Encoder::onLoop() {
-    aState = digitalRead(pinA);
+    state = (state << 1) | digitalRead(pinA) | 0xe000;
 
-    if (aState != aLastState) {
-        if(wasOnceBefore){
-            bool scrolledDown = digitalRead(pinB) != aState;
-            onEvent(scrolledDown);
-        }
-        wasOnceBefore = !wasOnceBefore;
+    if (state == 0xf000) {
+        state = 0x0000;
+        if (digitalRead(pinB))
+            onEvent(true);
+        else
+            onEvent(false);
     }
-    aLastState = aState;
 }
 
 void Encoder::setOnEventListener(std::function<void(bool a)> onEvent_) {
-    onEvent = onEvent_;
+    onEvent = std::move(onEvent_);
 }

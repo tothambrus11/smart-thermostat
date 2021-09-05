@@ -1,8 +1,8 @@
 <div id="left-nav">
-  <span>{{targetTemp}}°C</span>
+  <span>{{tempService.targetTemp|temp}}°C</span>
   <span [class.current-temp]="true">
     <img src="/assets/up-arrow.svg" *ngIf="tempService.isHeating">
-    <img src="/assets/down-arrow.svg" *ngIf="!tempService.isHeating">{{tempService.currentTemp}}
+    <img src="/assets/down-arrow.svg" *ngIf="!tempService.isHeating">{{tempService.currentTemp | temp:2}}
     <span>°C</span>
   </span>
 </div>
