@@ -32,6 +32,9 @@ public:
     static const int DAILY = 0, WEEKLY = 1, NEVER = 2;
 };
 
+void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
+                                 std::vector<TempInterval *> activeIntervals, MyTime now);
+
 bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time) {
     if (start < end) {
         return start <= time && time < end;
@@ -76,54 +79,46 @@ inline bool inThePastOrNow(tm date, tm now) {
     return !inTheFuture(date, now);
 }
 
-bool isActiveDateInterval(TempInterval interval, tm *currentDate) {
+bool isActiveDateInterval(TempInterval *interval, tm *currentDate) {
     tm startDate = {
             0,
-            interval.startMinute,
-            interval.startHour,
-            interval.startDay,
-            interval.startMonth - 1,
-            interval.startYear - 1900
+            interval->startMinute,
+            interval->startHour,
+            interval->startDay,
+            interval->startMonth - 1,
+            interval->startYear - 1900
     };
 
     tm endDate = {
             0,
-            interval.endMinute,
-            interval.endHour,
-            interval.endDay,
-            interval.endMonth - 1,
-            interval.endYear - 1900
+            interval->endMinute,
+            interval->endHour,
+            interval->endDay,
+            interval->endMonth - 1,
+            interval->endYear - 1900
     };
 
     return inThePastOrNow(startDate, *currentDate) &&
            inTheFuture(endDate, *currentDate);
 }
 
-void setup() {
-    Serial.begin(9600);
-
-    WiFi.begin("TelePort Link", "Sajtkukac2004");
-    WiFi.waitForConnectResult(10000);
-    if (WiFi.isConnected()) {
-        Serial.println("Connected");
-    } else {
-        Serial.println("Not connected");
+void printIntervals(std::vector<TempInterval *> &intervals) {
+    for (const auto &item : intervals) {
+        Serial.print(String(item->temperature) + "°C ");
+        if (item->repetitionFrequency == RepetitionFrequency::NEVER) {
+            Serial.print(String(item->startYear) + "." + String(item->startMonth) + "." + String(item->startDay) + " " +
+                         item->startTime.toString() + " - " +
+                         String(item->endYear) + "." + String(item->endMonth) + "." + String(item->endDay) + " " +
+                         item->endTime.toString());
+        } else {
+            Serial.print(item->startTime.toString() + " - " + item->endTime.toString());
+        }
+        Serial.println();
     }
+}
 
-    DateTime.setTimeZone("CET-1CEST,M3.5.0,M10.5.0/3");
-    DateTime.begin();
-    if (!DateTime.isTimeValid()) {
-        Serial.println("Failed to get time from server.");
-    }
-
-    time_t rawtime;
-    time(&rawtime);
-    auto t = localtime(&rawtime);
-
-    MyTime nowMyTime(t);
-
-
-    TempInterval intervals[] = {
+std::vector<TempInterval *> getIntervals() {
+    TempInterval intervals_arr[] = {
             { // no
                     IntervalType::CUSTOM,
                     24.5,
@@ -289,64 +284,140 @@ void setup() {
             },
     };
 
+    std::vector<TempInterval *> intervals;
+    for (TempInterval &interval_ : intervals_arr) {
+        intervals.push_back(&interval_);
+    }
+    return intervals;
+}
 
-    std::vector<TempInterval *> activeIntervals;
+bool forcedNightMode;
+bool forcedDayMode;
+bool actualNightMode;
 
+void setup() {
+    Serial.begin(9600);
 
-    for (auto &interval : intervals) {
-        interval.startTime.init(interval.startHour, interval.startMinute);
-        interval.endTime.init(interval.endHour, interval.endMinute);
+    WiFi.begin("TelePort Link", "Sajtkukac2004");
+    WiFi.waitForConnectResult(10000);
+    if (WiFi.isConnected()) {
+        Serial.println("Connected");
+    } else {
+        Serial.println("Not connected");
     }
 
-    byte currentDay = dayOfWeek(t);
+    DateTime.setTimeZone("CET-1CEST,M3.5.0,M10.5.0/3");
+    DateTime.begin();
+    if (!DateTime.isTimeValid()) {
+        Serial.println("Failed to get time from server.");
+    }
+
+    time_t timeTime;
+    time(&timeTime);
+    auto t = localtime(&timeTime);
+
+    MyTime nowMyTime(t);
+
+    auto intervals = getIntervals();
 
     for (auto &interval : intervals) {
-        if (!interval.enabled) continue;
-        switch (interval.type) {
+        interval->startTime.init(interval->startHour, interval->startMinute);
+        interval->endTime.init(interval->endHour, interval->endMinute);
+    }
+
+    std::vector<TempInterval *> activeIntervals;
+    getCurrentlyActiveIntervals(intervals, t, activeIntervals, nowMyTime);
+
+    Serial.println("Active intervals: ");
+    printIntervals(activeIntervals);
+}
+
+bool realNightMode = false;
+
+void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
+                                 std::vector<TempInterval *> activeIntervals, MyTime now) {
+    byte currentDay = dayOfWeek(t);
+    activeIntervals.clear();
+
+    for (auto &interval : intervals) {
+        if (!interval->enabled) continue;
+        switch (interval->type) {
             case IntervalType::CUSTOM:
-                switch (interval.repetitionFrequency) {
+                switch (interval->repetitionFrequency) {
                     case RepetitionFrequency::DAILY:
-                        if (isActiveTimeInterval(interval.startTime, interval.endTime, nowMyTime)) {
-                            activeIntervals.push_back(&interval);
+                        if (isActiveTimeInterval(interval->startTime, interval->endTime, now)) {
+                            activeIntervals.push_back(interval);
                         }
                         break;
                     case RepetitionFrequency::WEEKLY:
-                        if (isActiveTimeInterval(interval.startTime, interval.endTime, nowMyTime) &&
-                            isActiveDay(interval.daysOfWeek, currentDay)) {
-                            activeIntervals.push_back(&interval);
+                        if (isActiveTimeInterval(interval->startTime, interval->endTime, now) &&
+                            isActiveDay(interval->daysOfWeek, currentDay)) {
+                            activeIntervals.push_back(interval);
                         }
                         break;
                     case RepetitionFrequency::NEVER:
                         if (isActiveDateInterval(interval, t)) {
-                            activeIntervals.push_back(&interval);
+                            activeIntervals.push_back(interval);
                         }
                         break;
                 }
 
                 break;
             case IntervalType::NIGHT:
-                if (isActiveTimeInterval(interval.startTime, interval.endTime, nowMyTime)) {
-                    activeIntervals.push_back(&interval);
+                bool realNightMode2;
+
+                if (interval->startTime < interval->endTime) {
+                    realNightMode2 = interval->startTime <= now && now < interval->endTime;
+                } else {
+                    realNightMode2 = now > interval->startTime or now < interval->endTime;
+                }
+
+                if (realNightMode2 != realNightMode) { // interval end or beginning
+                    forcedNightMode = false;
+                    forcedDayMode = false;
+                }
+
+                // affected by forced night and day mode
+                actualNightMode = realNightMode2 || forcedNightMode;
+                actualNightMode = actualNightMode && !forcedDayMode;
+
+                realNightMode = realNightMode2;
+
+                if (actualNightMode) {
+                    activeIntervals.push_back(interval);
                 }
                 break;
         }
     }
-
-    Serial.println("Active intervals: ");
-    for (const auto &item : activeIntervals) {
-        Serial.print(String(item->temperature) + "°C ");
-        if (item->repetitionFrequency == RepetitionFrequency::NEVER) {
-            Serial.print(String(item->startYear) + "." + String(item->startMonth) + "." + String(item->startDay) + " " +
-                         item->startTime.toString() + " - " +
-                         String(item->endYear) + "." + String(item->endMonth) + "." + String(item->endDay) + " " +
-                         item->endTime.toString());
-        } else {
-            Serial.print(item->startTime.toString() + " - " + item->endTime.toString());
-        }
-        Serial.println();
-    }
 }
 
+TempInterval *getCurrentInterval(const std::vector<TempInterval *> &activeIntervals) {
+    if (activeIntervals.empty()) return nullptr;
+
+    TempInterval *bestInterval = activeIntervals[0];
+    for (auto interval : activeIntervals) {
+        if(bestInterval->order < interval->order){
+            bestInterval = interval;
+        }
+    }
+    return bestInterval;
+}
+
+void changeNightMode() {
+    if (actualNightMode) { // should be day mode
+        if (realNightMode) { // éjjeli mód éjszaka
+            forcedDayMode = true;
+        } else { // éjjeli mód nappal
+            forcedNightMode = false;
+        }
+    } else { // should be night mode
+        if (realNightMode) { // nappali mód éjszaka
+            forcedDayMode = false;
+        } else { // nappali mód nappal
+            forcedNightMode = true;
+        }
+    }
+}
 
 void loop() {
 
