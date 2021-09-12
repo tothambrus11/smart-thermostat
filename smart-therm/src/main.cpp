@@ -17,6 +17,8 @@
 #include "drawer.h"
 #include "local_server/index.h"
 #include "temp_sensor.h"
+#include "ESPDateTime.h"
+#include "temp_interval_functions.h"
 
 #define PIN_NIGHT_MODE_BTN D4
 #define PIN_ENCODER_A D5
@@ -48,10 +50,7 @@ AsyncWebServer server(3001);
 AsyncWebSocket ws("/ws");            // access at ws://[esp ip]/ws
 AsyncEventSource events("/events");  // event source (Server-Sent events)
 
-
 void setupPins();
-
-inline bool waitForConnection();
 
 void setup() {
     Serial.begin(9600);
@@ -64,7 +63,6 @@ void setup() {
     display.setContrast(255);
 
     setupPins();
-
 
     drawMessage("Starting...");
 
@@ -85,24 +83,30 @@ void setup() {
 
     drawMessage("Connecting to wifi...");
 
-    if (!waitForConnection()) {
+    WiFi.waitForConnectResult(10000);
+    if (WiFi.isConnected()) {
+        Serial.println("Connected");
+    } else {
         Serial.println("WIFI connection failed");
         drawMessage("WIFI connection\n failed");
-        delay(3000);
-    } else {
-        configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+        delay(3000);// todo set normal temp while waiting for reconnection
     }
-    page = HOME;
 
+    DateTime.setTimeZone("CET-1CEST,M3.5.0,M10.5.0/3");
+    DateTime.begin();
+    if (!DateTime.isTimeValid()) {
+        drawMessage("Failed to get time.");
+        Serial.println("Failed to get time.");// todo set normal temp while waiting for reconnection
+    }
+
+    page = HOME;
 
     server.addHandler(&events);        // attach AsyncEventSource
 
     setupRoutes();
-    setupLocalServer();
-
-    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
-
     server.begin();
+
+    setupLocalServer();
     updateIp();
 
     // BUTTON HANDLERS
@@ -136,7 +140,6 @@ void setup() {
                 break;
             default:
                 break;
-
         }
         redraw();
     });
@@ -153,9 +156,28 @@ void setup() {
         tempSensor.readTemperature();
     });
 
-    temperatureReadInterval.init(10, [](){
-       tempSensor.onInterval();
+    temperatureReadInterval.init(10, []() {
+        tempSensor.onInterval();
     });
+
+    time_t timeTime;
+    time(&timeTime);
+    auto t = localtime(&timeTime);
+
+    MyTime nowMyTime(t);
+
+    auto intervals = getInitialIntervals();
+
+    for (auto &interval : intervals) {
+        interval->startTime.init(interval->startHour, interval->startMinute);
+        interval->endTime.init(interval->endHour, interval->endMinute);
+    }
+
+    std::vector<TempInterval *> activeIntervals;
+    getCurrentlyActiveIntervals(intervals, t, activeIntervals, nowMyTime);
+
+    Serial.println("Active intervals: ");
+    printIntervals(activeIntervals);
 }
 
 void loop() {
@@ -170,8 +192,4 @@ void setupPins() {
     pinMode(PIN_ENCODER_A, INPUT_PULLUP);
     pinMode(PIN_ENCODER_B, INPUT_PULLUP);
     pinMode(PIN_RELAY, OUTPUT);
-}
-
-inline bool waitForConnection() {
-    return WiFi.waitForConnectResult(10000) == WL_CONNECTED;
 }

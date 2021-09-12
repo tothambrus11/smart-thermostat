@@ -35,13 +35,16 @@ MyTime::MyTime(tm *time) {
     secondsFromMidnight = hours * 3600 + minutes * 60 + seconds;
 }
 
-MyTime::MyTime() {
-    MyTime(getLocalTime());
-}
-
 MyTime::MyTime(byte hours, byte minutes, byte seconds) {
     secondsFromMidnight = hours * 3600 + minutes * 60 + seconds;
     this->hours = hours;
     this->minutes = minutes;
     this->seconds = seconds;
+}
+
+MyTime::MyTime() {
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    secondsFromMidnight = 0;
 }

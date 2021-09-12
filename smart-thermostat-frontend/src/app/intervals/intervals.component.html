@@ -16,14 +16,15 @@
     </app-card-row>
 
     <app-card-row>
-      <app-temp-input placeholder="hőmérséklet" [value]="intervalService.normalTemp"
+      <app-temp-input placeholder="hőmérséklet" [value]="normalTemp"
                       (changed)="saveNormalTemp($event)"></app-temp-input>
     </app-card-row>
   </app-card>
 
   <ng-container [ngSwitch]="interval.type" *ngFor="let interval of intervals">
     <!-- NIGHT TEMP CARD -->
-    <app-interval-card *ngSwitchCase="IntervalType.NIGHT" [ngStyle]="{order: interval.order}" (up)="up(interval)" (down)="down(interval)" [currentInterval]="interval">
+    <app-interval-card *ngSwitchCase="IntervalType.NIGHT" [ngStyle]="{order: interval.order}" (up)="up(interval)"
+                       (down)="down(interval)" [currentInterval]="interval">
       <app-card-row>
         <img src="/assets/moon.svg">
         <h2>Éjszakai hőmérséklet</h2>
@@ -54,7 +55,8 @@
     </app-interval-card><!-- END NIGHT TEMP CARD -->
 
     <!-- CUSTOM INTERVAL CARD -->
-    <app-interval-card *ngSwitchCase="IntervalType.CUSTOM" [ngStyle]="{order: interval.order}" (up)="up(interval)" (down)="down(interval)" [currentInterval]="interval">
+    <app-interval-card *ngSwitchCase="IntervalType.CUSTOM" [ngStyle]="{order: interval.order}" (up)="up(interval)"
+                       (down)="down(interval)" [currentInterval]="interval">
       <div class="icon-button material-icons delete-icon" (click)="deleteInterval(interval)">delete</div>
 
       <app-card-row>
@@ -88,9 +90,17 @@
         </app-card-row>
 
         <!-- CASE WEEKLY -->
-        <div *ngSwitchCase="RepetitionFrequency.WEEKLY">
+        <ng-container *ngSwitchCase="RepetitionFrequency.WEEKLY">
+
+          <app-card-row class="flex-wrap">
+            <div class="inactive-color-text">Intervallum:</div>
+            <app-input-time-interval [time1]="''|timeToString:interval.startHour!:interval.startMinute!"
+                                     [time2]="''|timeToString:interval.endHour!:interval.endMinute!">
+            </app-input-time-interval>
+          </app-card-row>
+
           <app-select-days-of-week [(value)]="interval.daysOfWeek!"></app-select-days-of-week>
-        </div>
+        </ng-container>
 
         <!-- CASE NEVER -->
         <app-card-row class="flex-wrap" *ngSwitchCase="RepetitionFrequency.NEVER">

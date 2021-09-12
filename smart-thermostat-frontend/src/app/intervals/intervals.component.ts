@@ -15,13 +15,15 @@ export class IntervalsComponent implements OnInit {
   intervals: StoredInterval[] = [];
   IntervalType = IntervalType;
   RepetitionFrequency = RepetitionFrequency;
+  normalTemp = 0;
 
   constructor(public intervalService: TempService, public alertService: AlertService) {
   }
 
   ngOnInit(): void {
-    this.intervalService.getIntervalsStoredData().then(ivs => {
-      this.intervals = ivs;
+    this.intervalService.getIntervalsStoredData().then((data) => {
+      this.intervals = data.items;
+      this.normalTemp = data.normalTemp;
     });
   }
 

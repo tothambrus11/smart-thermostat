@@ -1,17 +1,16 @@
 #include "Arduino.h"
 #ifndef INTERVAL_PROCESS_2_MYTIME_H
 #define INTERVAL_PROCESS_2_MYTIME_H
-struct TempInterval;
 
 class MyTime {
 public:
+    MyTime();
+
     int secondsFromMidnight;
 
     byte hours, minutes, seconds;
 
     MyTime(byte hours, byte minutes, byte seconds);
-
-    MyTime();
 
     MyTime(tm *time);
 

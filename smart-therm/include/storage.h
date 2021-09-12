@@ -1,5 +1,6 @@
 #include <Arduino.h>  // for type definitions
 #include <EEPROM.h>   // We need this library
+#include "TempInterval.h"
 #ifndef STORAGE_H
 #define STORAGE_H
 
@@ -21,12 +22,16 @@ struct WifiCredentials{
 };
 
 struct StoredData{
-    WifiCredentials wifiAP;
-    WifiCredentials connectedWifi;
-    unsigned int timezoneOffset; // minutes
-    unsigned int dstOffset; // daylight saving time minutes
+    WifiCredentials wifiAP{};
+    WifiCredentials connectedWifi{};
+    unsigned int timezoneOffset{}; // minutes
+    unsigned int dstOffset{}; // daylight saving time minutes
 
-    unsigned int corruptionCheck;
+    float normalTemp{};
+
+    std::size_t intervalCount{};
+    TempInterval intervals[20];
+    unsigned int corruptionCheck{};
 };
 
 extern StoredData storedData;

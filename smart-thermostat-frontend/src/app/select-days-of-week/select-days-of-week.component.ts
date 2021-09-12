@@ -60,5 +60,4 @@ export class SelectDaysOfWeekComponent implements OnInit {
     this.valueChange.emit(this.value);
     console.log(this.value)
   }
-
 }
