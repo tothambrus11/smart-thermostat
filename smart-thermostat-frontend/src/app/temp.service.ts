@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {IntervalType, RepetitionFrequency, StoredInterval} from './interval';
+import {StoredInterval} from './interval';
 import {HttpClient} from '@angular/common/http';
 import {ConfigService} from './config.service';
 
@@ -92,5 +92,21 @@ export class TempService {
   async getIsHeating(): Promise<boolean> {
     let temp = await this.http.get(`${this.config.serverBaseURl}get-is-heating`, {responseType: 'text'}).toPromise();
     return temp == '1';
+  }
+
+  async deleteInterval(order: number): Promise<any>{
+    return this.http.get(`${this.config.serverBaseURl}remove-interval?order=${order}`, {responseType: 'text'}).toPromise();
+  }
+
+  resetEverything() {
+    return this.http.get(`${this.config.serverBaseURl}reset`, {responseType: 'text'}).toPromise();
+  }
+
+  resetIntervals() {
+    return this.http.get(`${this.config.serverBaseURl}reset-intervals`, {responseType: 'text'}).toPromise();
+  }
+
+  restart() {
+    return this.http.get(`${this.config.serverBaseURl}restart`, {responseType: 'text'}).toPromise();
   }
 }

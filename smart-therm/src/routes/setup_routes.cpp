@@ -1,4 +1,5 @@
 #include <storage.h>
+#include <temp_interval_functions.h>
 #include "globals.h"
 #include "Arduino.h"
 #include "ArduinoJson.h"
@@ -48,35 +49,57 @@ void setupRoutes() {
 
     server.on("/get-intervals", HTTP_GET, [](AsyncWebServerRequest *request) {
 
-        auto * response = new AsyncJsonResponse(false, 7000);
+        auto *response = new AsyncJsonResponse(false, 7000);
         JsonObject doc = response->getRoot();
 
         doc["normalTemp"] = storedData.normalTemp;
 
         auto arr = doc.createNestedArray("items");
-        for (std::size_t i = 0; i < storedData.intervalCount && i <= 20; ++i) {
+        for (auto &tempInterval : tempIntervals) {
             JsonObject data = arr.createNestedObject();
-            data["type"] = storedData.intervals[i].type;
-            data["temperature"] = storedData.intervals[i].temperature;
-            data["enabled"] = storedData.intervals[i].enabled;
-            data["repetitionFrequency"] = storedData.intervals[i].repetitionFrequency;
-            data["daysOfWeek"] = storedData.intervals[i].daysOfWeek;
-            data["startYear"] = storedData.intervals[i].startYear;
-            data["startMonth"] = storedData.intervals[i].startMonth;
-            data["startDay"] = storedData.intervals[i].startDay;
-            data["startHour"] = storedData.intervals[i].startHour;
-            data["startMinute"] = storedData.intervals[i].startMinute;
-            data["endYear"] = storedData.intervals[i].endYear;
-            data["endMonth"] = storedData.intervals[i].endMonth;
-            data["endDay"] = storedData.intervals[i].endDay;
-            data["endHour"] = storedData.intervals[i].endHour;
-            data["endMinute"] = storedData.intervals[i].endMinute;
-            data["order"] = storedData.intervals[i].order;
+            Serial.println(tempInterval->type);
+            data["type"] = tempInterval->type;
+            data["temperature"] = tempInterval->temperature;
+            data["enabled"] = tempInterval->enabled;
+            data["repetitionFrequency"] = tempInterval->repetitionFrequency;
+            data["daysOfWeek"] = tempInterval->daysOfWeek;
+            data["startYear"] = tempInterval->startYear;
+            data["startMonth"] = tempInterval->startMonth;
+            data["startDay"] = tempInterval->startDay;
+            data["startHour"] = tempInterval->startHour;
+            data["startMinute"] = tempInterval->startMinute;
+            data["endYear"] = tempInterval->endYear;
+            data["endMonth"] = tempInterval->endMonth;
+            data["endDay"] = tempInterval->endDay;
+            data["endHour"] = tempInterval->endHour;
+            data["endMinute"] = tempInterval->endMinute;
+            data["order"] = tempInterval->order;
         }
 
         response->setLength();
         request->send(response);
     });
+
+    server.on("/remove-interval", HTTP_GET, [](AsyncWebServerRequest *request) {
+        int order = request->getParam("order")->value().toInt();
+        removeInterval(order);
+        request->send(200, "text/plain", OK_RESPONSE + String(order));
+    });
+
+    server.on("/reset-intervals", HTTP_GET, [](AsyncWebServerRequest *request) {
+        clearTempIntervalsInRAM();
+        getInitialIntervals(tempIntervals);
+        saveFromRAM();
+        saveData();
+        request->send(200, "text/plain", OK_RESPONSE);
+    });
+
+
+    server.on("/restart", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", OK_RESPONSE);
+        ESP.restart();
+    });
+
 
     server.onNotFound([](AsyncWebServerRequest *request) {
         request->send(404, "404 Not Found");

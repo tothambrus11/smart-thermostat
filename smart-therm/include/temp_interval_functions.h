@@ -26,8 +26,7 @@ bool isActiveDateInterval(TempInterval *interval, tm *currentDate);
 
 void printIntervals(std::vector<TempInterval *> &intervals);
 
-std::vector<TempInterval *> getInitialIntervals();
-
+void getInitialIntervals(std::vector<TempInterval*> &ivs);
 
 void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
                                  std::vector<TempInterval *> activeIntervals, MyTime now);

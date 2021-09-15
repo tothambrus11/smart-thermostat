@@ -1,8 +1,13 @@
 #include <Arduino.h>  // for type definitions
 #include <EEPROM.h>   // We need this library
 #include "storage.h"
+#include "temp_interval_functions.h"
 
-const unsigned int CORRUPTION_CHECK_VALUE = 12345678;
+const unsigned int CORRUPTION_CHECK_VALUE = 12345;
+
+std::vector<TempInterval *> tempIntervals;
+
+StoredData storedData;
 
 //We create two fucntions for writing and reading data from the EEPROM
 template<class T>
@@ -27,10 +32,9 @@ static unsigned int EEPROM_readAnything(int addr, T &value) {
     return i;
 }
 
-StoredData storedData;
-
 void readData() {
     EEPROM_readAnything<StoredData>(0, storedData);
+    loadIntervalsInRAM();
 }
 
 void saveData() {
@@ -51,10 +55,45 @@ void clearData() {
     storedData.wifiAP.passwordLength = pass.length();
     pass.toCharArray(storedData.wifiAP.password, pass.length() + 1);
 
+    ssid = "asd12345";
+    storedData.connectedWifi.ssidLength = ssid.length();
+    ssid.toCharArray(storedData.connectedWifi.ssid, ssid.length() + 1);
+
+    pass = "asd12345";
+    storedData.connectedWifi.passwordLength = pass.length();
+    pass.toCharArray(storedData.connectedWifi.password, pass.length() + 1);
+
     storedData.timezoneOffset = 0;
     storedData.dstOffset = 0;
 
+    storedData.normalTemp = 23.5;
+
+    clearTempIntervalsInRAM();
+    getInitialIntervals(tempIntervals);
+    saveFromRAM();
     saveData();
+}
+
+
+void clearTempIntervalsInRAM() {
+    for (const auto item : tempIntervals) {
+        //delete item; todo memory leak
+    }
+    tempIntervals.clear();
+}
+
+void loadIntervalsInRAM() {
+    clearTempIntervalsInRAM();
+    for (size_t i = 0; i < storedData.intervalCount; ++i) {
+        tempIntervals.push_back(&storedData.intervals[i]);
+    }
+}
+
+void saveFromRAM() {
+    storedData.intervalCount = tempIntervals.size();
+    for (size_t i = 0; i < tempIntervals.size(); ++i) {
+        storedData.intervals[i] = *tempIntervals[i];
+    }
 }
 
 void checkDataCorruption() {
@@ -63,4 +102,22 @@ void checkDataCorruption() {
         Serial.println(storedData.corruptionCheck);
         clearData();
     }
+}
+
+
+void removeInterval(int order) {
+    for (size_t i = 0; i < tempIntervals.size(); i++) {
+        if (tempIntervals[i]->order == order) {
+            tempIntervals.erase(tempIntervals.begin() + i);
+            break;
+        }
+    }
+
+    for (TempInterval* interval : tempIntervals) {
+        if(interval->order > order){
+            interval->order--;
+        }
+    }
+    saveFromRAM();
+    saveData();
 }

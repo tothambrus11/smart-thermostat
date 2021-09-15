@@ -102,26 +102,25 @@ void printIntervals(std::vector<TempInterval *> &intervals) {
     }
 }
 
-
-std::vector<TempInterval *> getInitialIntervals() {
+void getInitialIntervals(std::vector<TempInterval *> &ivs) {
     TempInterval intervals_arr[] = {
             { // no
-                    IntervalType::CUSTOM,
-                    24.5,
+                    IntervalType::NIGHT,
+                    17,
                     true,
                     RepetitionFrequency::DAILY,
                     0,
                     0,
                     0,
                     0,
-                    12,
-                    30,
+                    22,
                     0,
                     0,
                     0,
-                    15,
-                    32,
-                    1
+                    0,
+                    6,
+                    0,
+                    0,
             },
             {// yes
                     IntervalType::CUSTOM,
@@ -139,7 +138,7 @@ std::vector<TempInterval *> getInitialIntervals() {
                     0,
                     17,
                     51,
-                    2
+                    1,
             },
             { // yes
                     IntervalType::CUSTOM,
@@ -175,7 +174,7 @@ std::vector<TempInterval *> getInitialIntervals() {
                     0,
                     3,
                     30,
-                    2
+                    3
             },
             { // yes
                     IntervalType::CUSTOM,
@@ -193,7 +192,7 @@ std::vector<TempInterval *> getInitialIntervals() {
                     0,
                     17,
                     30,
-                    2
+                    4
             },
             { // yes
                     IntervalType::CUSTOM,
@@ -211,7 +210,7 @@ std::vector<TempInterval *> getInitialIntervals() {
                     6,
                     19,
                     30,
-                    2
+                    5
             },
             { // no
                     IntervalType::CUSTOM,
@@ -229,7 +228,7 @@ std::vector<TempInterval *> getInitialIntervals() {
                     0,
                     19,
                     30,
-                    2
+                    6
             },
             { // yes
                     IntervalType::CUSTOM,
@@ -247,9 +246,8 @@ std::vector<TempInterval *> getInitialIntervals() {
                     13,
                     20,
                     47,
-                    2
+                    7
             },
-
             { // no
                     IntervalType::CUSTOM,
                     12.5,
@@ -266,15 +264,15 @@ std::vector<TempInterval *> getInitialIntervals() {
                     6,
                     19,
                     30,
-                    2
-            },
+                    8
+            }
     };
 
-    std::vector<TempInterval *> intervals;
-    for (TempInterval &interval_ : intervals_arr) {
-        intervals.push_back(&interval_);
+    for (TempInterval interval_ : intervals_arr) {
+        auto p = new TempInterval();
+        *p = interval_;
+        ivs.push_back(p);
     }
-    return intervals;
 }
 
 bool realNightMode = false;
@@ -282,6 +280,7 @@ bool realNightMode = false;
 void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
                                  std::vector<TempInterval *> activeIntervals, MyTime now) {
     byte currentDay = dayOfWeek(t);
+
     activeIntervals.clear();
 
     for (auto &interval : intervals) {
@@ -368,8 +367,5 @@ void changeNightMode() {
 
 
 void saveIntervalVector(std::vector<TempInterval *> *intervals) {
-    for(std::size_t i = 0; i < intervals->size(); i++){
-        storedData.intervals[i] = *(*intervals)[i];
-    }
-    storedData.intervalCount = intervals->size();
+
 }

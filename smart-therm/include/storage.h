@@ -1,27 +1,30 @@
+#pragma once
+
 #include <Arduino.h>  // for type definitions
 #include <EEPROM.h>   // We need this library
 #include "TempInterval.h"
-#ifndef STORAGE_H
-#define STORAGE_H
 
 extern const unsigned int CORRUPTION_CHECK_VALUE;
 const unsigned short WIFI_SSID_MAX_LENGTH = 32;
 const unsigned short WIFI_PWD_MAX_LENGTH = 32;
+extern std::vector<TempInterval *> tempIntervals;
 
-template <class T>
-static unsigned int EEPROM_writeAnything(int ee, const T& value);
+template<class T>
+static unsigned int EEPROM_writeAnything(int ee, const T &value);
 
-template <class T>
-static unsigned int EEPROM_readAnything(int ee, T& value);
+template<class T>
+static unsigned int EEPROM_readAnything(int ee, T &value);
 
-struct WifiCredentials{
+struct WifiCredentials {
     char ssid[WIFI_SSID_MAX_LENGTH];
-    char password[WIFI_SSID_MAX_LENGTH];
+    char password[WIFI_PWD_MAX_LENGTH];
     unsigned short ssidLength;
     unsigned short passwordLength;
 };
 
-struct StoredData{
+const int MAX_INTERVAL_COUNT = 20;
+
+struct StoredData {
     WifiCredentials wifiAP{};
     WifiCredentials connectedWifi{};
     unsigned int timezoneOffset{}; // minutes
@@ -30,7 +33,7 @@ struct StoredData{
     float normalTemp{};
 
     std::size_t intervalCount{};
-    TempInterval intervals[20];
+    TempInterval intervals[MAX_INTERVAL_COUNT];
     unsigned int corruptionCheck{};
 };
 
@@ -44,4 +47,10 @@ void clearData();
 
 void checkDataCorruption();
 
-#endif
+void loadIntervalsInRAM();
+
+void clearTempIntervalsInRAM();
+
+void saveFromRAM();
+
+void removeInterval(int order);

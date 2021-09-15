@@ -3,12 +3,12 @@
 <div class="card-container">
   <app-card>
     <app-card-row>
-      <img src="/assets/sunny.svg">
+      <img src="/assets/sunny.svg" alt="sunny">
       <h2>Normális hőmérséklet</h2>
     </app-card-row>
 
     <app-card-row>
-      <img src="/assets/info.svg">
+      <img src="/assets/info.svg" alt="info">
       <div class="inactive-color-text">Ez a hőmérséklet fog érvénybe lépni, ha semelyik másik intervallum nem aktív
         éppen. Ha egy
         időpontban egyszerre több intervallum is aktív lenne, akkor a sorban előbb lévő hőmérséklete fog aktiválódni.
@@ -26,12 +26,12 @@
     <app-interval-card *ngSwitchCase="IntervalType.NIGHT" [ngStyle]="{order: interval.order}" (up)="up(interval)"
                        (down)="down(interval)" [currentInterval]="interval">
       <app-card-row>
-        <img src="/assets/moon.svg">
+        <img src="/assets/moon.svg" alt="night">
         <h2>Éjszakai hőmérséklet</h2>
       </app-card-row>
 
       <app-card-row>
-        <img src="/assets/info.svg">
+        <img src="/assets/info.svg" alt="info">
         <div class="inactive-color-text">Ez a mód automatikusan aktiválódik a megadott intervallumban, de hamarabb is el
           lehet indítani, vagy megállítani a készüléken elhelyezett gombbal.
         </div>
@@ -60,7 +60,7 @@
       <div class="icon-button material-icons delete-icon" (click)="deleteInterval(interval)">delete</div>
 
       <app-card-row>
-        <img src="/assets/alarm.svg">
+        <img src="/assets/alarm.svg" alt="interval">
         <h2>Saját intervallum</h2>
       </app-card-row>
 
@@ -115,29 +115,8 @@
     </app-interval-card>
   </ng-container>
 
-
-  <!--app-card>
-    <app-card-row>
-      <img src="/assets/alarm.svg">
-      <h2>Saját intervallum</h2>
-    </app-card-row>
-
-    <app-card-row>
-      <app-temp-input placeholder="hőmérséklet"></app-temp-input>
-    </app-card-row>
-
-    <app-card-row>
-      <span class="inactive-color-text">Engedélyezve:</span>
-      <app-switch [(state)]=""></app-switch>
-    </app-card-row>
-    <app-card-row>
-      <div class="inactive-color-text">Ismétlés:</div>
-      <app-dropdown-list [items]="frequencies" [selected]="2"></app-dropdown-list>
-    </app-card-row>
-    <app-card-row class="flex-wrap">
-      <div class="inactive-color-text">Intervallum:</div>
-      <app-input-datetime-range ></app-input-datetime-range>
-    </app-card-row>
-
-  </app-card-->
+  <div id="add-interval">
+    <div class="material-icons">add</div>
+    <span>Intervallum hozzáadása</span>
+  </div>
 </div>

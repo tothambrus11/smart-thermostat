@@ -160,24 +160,21 @@ void setup() {
         tempSensor.onInterval();
     });
 
-    time_t timeTime;
+   /* time_t timeTime;
     time(&timeTime);
     auto t = localtime(&timeTime);
 
     MyTime nowMyTime(t);
 
-    auto intervals = getInitialIntervals();
 
-    for (auto &interval : intervals) {
-        interval->startTime.init(interval->startHour, interval->startMinute);
-        interval->endTime.init(interval->endHour, interval->endMinute);
-    }
+    std::vector<TempInterval*> intervals;
+
 
     std::vector<TempInterval *> activeIntervals;
     getCurrentlyActiveIntervals(intervals, t, activeIntervals, nowMyTime);
 
     Serial.println("Active intervals: ");
-    printIntervals(activeIntervals);
+    printIntervals(activeIntervals);*/
 }
 
 void loop() {

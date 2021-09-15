@@ -1,9 +1,8 @@
-#ifndef INTERVAL_PROCESS_2_TEMPINTERVAL_H
-#define INTERVAL_PROCESS_2_TEMPINTERVAL_H
+#pragma once
 
 #include "MyTime.h"
 
-struct TempInterval {
+struct TempInterval{
     byte type{}; // IntervalType
     float temperature{};
     bool enabled{};
@@ -24,4 +23,3 @@ struct TempInterval {
     MyTime endTime{};
 };
 
-#endif //INTERVAL_PROCESS_2_TEMPINTERVAL_H

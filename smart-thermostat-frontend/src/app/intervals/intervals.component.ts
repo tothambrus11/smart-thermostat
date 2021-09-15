@@ -92,8 +92,14 @@ export class IntervalsComponent implements OnInit {
       okButtonText: 'Törlés',
       showOkButton: true,
       showCancelButton: true,
-      onOk: () => {
-        //TODO implement
+      onOk: async () => {
+        await this.intervalService.deleteInterval(interval.order);
+        console.log("deleted");
+        let index = this.intervals.indexOf(interval);
+        this.intervals.splice(index,1);
+        for(let i = index; i < this.intervals.length; i++){
+          this.intervals[i].order--;
+        }
       },
     });
   }

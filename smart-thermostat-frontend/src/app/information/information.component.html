@@ -1,4 +1,21 @@
 <app-navbar [activeTab]="3"></app-navbar>
 <h1 class="page-title">Információk</h1>
 
-<app-temp-circle></app-temp-circle>
+
+<div class="card-container">
+  <app-temp-circle></app-temp-circle>
+
+  <app-card>
+    <app-card-row>
+      <h2>Hasznos dolgok</h2>
+    </app-card-row>
+    <app-card-row style="flex-wrap: wrap">
+      <input type="button" value="Minden visszaállítása" (click)="reEv()">
+      <input type="button" value="Intervallumok visszaállítása" (click)="reInterval()">
+      <a href="http://192.168.4.1" target="_blank">
+        <input type="button" value="WiFi konfiguráció">
+      </a>
+      <input type="button" value="Újraindítás" (click)="restart()">
+    </app-card-row>
+  </app-card>
+</div>
