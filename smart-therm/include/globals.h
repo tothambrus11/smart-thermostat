@@ -13,3 +13,4 @@ extern Page page;
 extern bool isNightMode;
 extern float scrollPos;
 extern String drawnMessage;
+extern AsyncEventSource events;

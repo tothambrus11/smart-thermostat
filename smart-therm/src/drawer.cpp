@@ -3,6 +3,7 @@
 #include "stringify.h"
 #include "globals.h"
 #include "pages.h"
+#include "temp_interval_functions.h"
 
 void redraw() {
     display.clear();
@@ -11,7 +12,7 @@ void redraw() {
     switch (page) {
         case HOME:
 
-            display.drawFastImage(108, 25, 16, 16, isNightMode ? epd_bitmap_hold : epd_bitmap_sun);
+            display.drawFastImage(108, 25, 16, 16, actualNightMode ? epd_bitmap_hold : epd_bitmap_sun);
 
             if (tempRegulator.goingUp) {
                 display.drawFastImage(20, 15, 16, 16, epd_bitmap_nyil);

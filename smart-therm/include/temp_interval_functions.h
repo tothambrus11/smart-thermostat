@@ -5,6 +5,12 @@
 #include "MyTime.h"
 #include "TempInterval.h"
 
+extern bool forcedNightMode;
+extern bool forcedDayMode;
+extern bool realNightMode; // based on time interval
+extern bool actualNightMode; // affected by forced mode
+
+
 bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time);
 
 // monday is 1
@@ -29,11 +35,13 @@ void printIntervals(std::vector<TempInterval *> &intervals);
 void getInitialIntervals(std::vector<TempInterval*> &ivs);
 
 void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
-                                 std::vector<TempInterval *> activeIntervals, MyTime now);
+                                 std::vector<TempInterval *> &activeIntervals, MyTime now);
 
 TempInterval *getCurrentInterval(const std::vector<TempInterval *> &activeIntervals);
 
 void changeNightMode();
+
+void checkAndActivateIntervals();
 
 void saveIntervalVector(std::vector<TempInterval *> * intervals);
 

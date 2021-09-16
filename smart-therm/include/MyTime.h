@@ -10,7 +10,7 @@ public:
 
     byte hours, minutes, seconds;
 
-    MyTime(byte hours, byte minutes, byte seconds);
+    MyTime(byte hours, byte minutes, byte seconds = 0);
 
     MyTime(tm *time);
 

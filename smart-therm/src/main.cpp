@@ -111,7 +111,8 @@ void setup() {
 
     // BUTTON HANDLERS
     nightModeButton.setOnPressListener([]() {
-        isNightMode = !isNightMode;
+        changeNightMode();
+        checkAndActivateIntervals();
         redraw();
     });
 
@@ -132,8 +133,10 @@ void setup() {
     encoder.setOnEventListener([](bool scrolledDown) {
         switch (page) {
             case HOME:
-                tempRegulator.setTargetTemp(tempRegulator.getTargetTemp() + (scrolledDown ? .1f : -.1f));
-                events.send(String(tempRegulator.getTargetTemp()).c_str(), "target_temperature", millis());
+                // todo change current interval's temperature
+                tempIntervals[0]->temperature += scrolledDown ? .1f : -.1f;
+                checkAndActivateIntervals();
+
                 break;
             case MAIN_MENU:
                 scrollPos += scrolledDown ? 1 : -1;
@@ -154,27 +157,14 @@ void setup() {
 
     temperatureUpdateInterval.init(1000, []() {
         tempSensor.readTemperature();
+
+        checkAndActivateIntervals();
     });
 
     temperatureReadInterval.init(10, []() {
         tempSensor.onInterval();
     });
 
-   /* time_t timeTime;
-    time(&timeTime);
-    auto t = localtime(&timeTime);
-
-    MyTime nowMyTime(t);
-
-
-    std::vector<TempInterval*> intervals;
-
-
-    std::vector<TempInterval *> activeIntervals;
-    getCurrentlyActiveIntervals(intervals, t, activeIntervals, nowMyTime);
-
-    Serial.println("Active intervals: ");
-    printIntervals(activeIntervals);*/
 }
 
 void loop() {

@@ -17,6 +17,9 @@ void TempRegulator::regulateTemp() {
 }
 
 void TempRegulator::setTargetTemp(float temperature) {
+    if(round(targetTemp*1000) == round(temperature*1000)) return;
+
+    events.send(String(temperature).c_str(), "target_temperature", millis());
     targetTemp = temperature;
     targetTempUpperLimit = targetTemp + TEMP_REGULATOR_HYSTERESIS;
     targetTempLowerLimit = targetTemp - TEMP_REGULATOR_HYSTERESIS;

@@ -82,10 +82,11 @@ void clearTempIntervalsInRAM() {
     tempIntervals.clear();
 }
 
-void loadIntervalsInRAM() {
-    clearTempIntervalsInRAM();
-    for (size_t i = 0; i < storedData.intervalCount; ++i) {
-        tempIntervals.push_back(&storedData.intervals[i]);
+
+void initMyTimesInRAM() {
+    for (const auto &item : tempIntervals) {
+        item->startTime.init(item->startHour, item->startMinute);
+        item->endTime.init(item->endHour, item->endMinute);
     }
 }
 
@@ -94,6 +95,14 @@ void saveFromRAM() {
     for (size_t i = 0; i < tempIntervals.size(); ++i) {
         storedData.intervals[i] = *tempIntervals[i];
     }
+}
+
+void loadIntervalsInRAM() {
+    clearTempIntervalsInRAM();
+    for (size_t i = 0; i < storedData.intervalCount; ++i) {
+        tempIntervals.push_back(&storedData.intervals[i]);
+    }
+    initMyTimesInRAM();
 }
 
 void checkDataCorruption() {
@@ -113,8 +122,8 @@ void removeInterval(int order) {
         }
     }
 
-    for (TempInterval* interval : tempIntervals) {
-        if(interval->order > order){
+    for (TempInterval *interval : tempIntervals) {
+        if (interval->order > order) {
             interval->order--;
         }
     }

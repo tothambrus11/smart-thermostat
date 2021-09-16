@@ -54,3 +54,5 @@ void clearTempIntervalsInRAM();
 void saveFromRAM();
 
 void removeInterval(int order);
+
+void initMyTimesInRAM();

@@ -2,16 +2,17 @@
 #include <repetition_frequency.h>
 #include "temp_interval_functions.h"
 #include <chrono>
-#include <ESP8266WiFi.h>
 #include "Arduino.h"
-#include "ESPDateTime.h"
 #include "MyTime.h"
 #include "TempInterval.h"
 #include "storage.h"
+#include "globals.h"
 
 bool forcedNightMode;
 bool forcedDayMode;
-bool actualNightMode;
+
+bool realNightMode = false; // based on time interval
+bool actualNightMode; // affected by forced mode
 
 
 bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time) {
@@ -23,10 +24,10 @@ bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time) {
     return true;
 }
 
-
 bool isActiveDay(byte activeDaysOfWeek, byte currentDay) {
     return (activeDaysOfWeek >> (7 - currentDay)) & 1;
 }
+
 
 int dayOfWeek(tm *t) {
     return t->tm_wday == 0 ? 7 : t->tm_wday;
@@ -86,7 +87,6 @@ bool isActiveDateInterval(TempInterval *interval, tm *currentDate) {
            inTheFuture(endDate, *currentDate);
 }
 
-
 void printIntervals(std::vector<TempInterval *> &intervals) {
     for (const auto &item : intervals) {
         Serial.print(String(item->temperature) + "°C ");
@@ -100,6 +100,29 @@ void printIntervals(std::vector<TempInterval *> &intervals) {
         }
         Serial.println();
     }
+}
+
+void checkAndActivateIntervals(){
+    time_t timeTime;
+    time(&timeTime);
+    auto t = localtime(&timeTime);
+
+    MyTime nowMyTime(t);
+    Serial.println(nowMyTime.toString());
+
+    std::vector<TempInterval *> activeIntervals;
+    getCurrentlyActiveIntervals(tempIntervals, t, activeIntervals, nowMyTime);
+
+    if(activeIntervals.empty()){
+        tempRegulator.setTargetTemp(storedData.normalTemp);
+    } else {
+        tempRegulator.setTargetTemp(activeIntervals[0]->temperature);
+    }
+
+    Serial.println("Active intervals: ");
+    printIntervals(activeIntervals);
+    Serial.println("Forced night, forced day mode: " + String(forcedNightMode?"1":"0") + ", " + String(forcedDayMode?"1":"0"));
+    Serial.println("actual night, real night mode: " + String(actualNightMode?"1":"0") + ", " + String(realNightMode?"1":"0"));
 }
 
 void getInitialIntervals(std::vector<TempInterval *> &ivs) {
@@ -124,7 +147,7 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
             },
             {// yes
                     IntervalType::CUSTOM,
-                    24.5,
+                    30,
                     true,
                     RepetitionFrequency::DAILY,
                     0,
@@ -142,7 +165,7 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
             },
             { // yes
                     IntervalType::CUSTOM,
-                    24.5,
+                    32.6,
                     true,
                     RepetitionFrequency::DAILY,
                     0,
@@ -160,7 +183,7 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
             },
             { // no
                     IntervalType::CUSTOM,
-                    24.5,
+                    24.9,
                     true,
                     RepetitionFrequency::DAILY,
                     0,
@@ -178,7 +201,7 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
             },
             { // yes
                     IntervalType::CUSTOM,
-                    24.5,
+                    26.5,
                     true,
                     RepetitionFrequency::DAILY,
                     0,
@@ -232,7 +255,7 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
             },
             { // yes
                     IntervalType::CUSTOM,
-                    12.5,
+                    12.6,
                     true,
                     RepetitionFrequency::NEVER,
                     0,
@@ -250,7 +273,7 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
             },
             { // no
                     IntervalType::CUSTOM,
-                    12.5,
+                    11.5,
                     true,
                     RepetitionFrequency::NEVER,
                     0,
@@ -275,10 +298,8 @@ void getInitialIntervals(std::vector<TempInterval *> &ivs) {
     }
 }
 
-bool realNightMode = false;
-
 void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
-                                 std::vector<TempInterval *> activeIntervals, MyTime now) {
+                                 std::vector<TempInterval *> &activeIntervals, MyTime now) {
     byte currentDay = dayOfWeek(t);
 
     activeIntervals.clear();
