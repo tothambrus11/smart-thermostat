@@ -68,20 +68,10 @@ void clearData() {
 
     storedData.normalTemp = 23.5;
 
-    clearTempIntervalsInRAM();
     getInitialIntervals(tempIntervals);
     saveFromRAM();
     saveData();
 }
-
-
-void clearTempIntervalsInRAM() {
-    for (const auto item : tempIntervals) {
-        //delete item; todo memory leak
-    }
-    tempIntervals.clear();
-}
-
 
 void initMyTimesInRAM() {
     for (const auto &item : tempIntervals) {
@@ -98,21 +88,22 @@ void saveFromRAM() {
 }
 
 void loadIntervalsInRAM() {
-    clearTempIntervalsInRAM();
+    tempIntervals.clear();
     for (size_t i = 0; i < storedData.intervalCount; ++i) {
-        tempIntervals.push_back(&storedData.intervals[i]);
+        auto b = new TempInterval();
+        *b = storedData.intervals[i]; // copy
+        tempIntervals.push_back(b);
     }
     initMyTimesInRAM();
 }
 
 void checkDataCorruption() {
     if (storedData.corruptionCheck != CORRUPTION_CHECK_VALUE) {
-        Serial.println("Corruption check");
+        Serial.println("Corruption check failed. Clearing storage...");
         Serial.println(storedData.corruptionCheck);
         clearData();
     }
 }
-
 
 void removeInterval(int order) {
     for (size_t i = 0; i < tempIntervals.size(); i++) {
@@ -129,4 +120,5 @@ void removeInterval(int order) {
     }
     saveFromRAM();
     saveData();
+    checkAndActivateIntervals();
 }

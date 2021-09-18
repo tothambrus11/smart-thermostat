@@ -1,15 +1,12 @@
-#ifndef SMART_THERM_TEMP_INTERVAL_FUNCTIONS_H
-#define SMART_THERM_TEMP_INTERVAL_FUNCTIONS_H
+#pragma once
 
 #include "Arduino.h"
 #include "MyTime.h"
 #include "TempInterval.h"
 
-extern bool forcedNightMode;
-extern bool forcedDayMode;
 extern bool realNightMode; // based on time interval
 extern bool actualNightMode; // affected by forced mode
-
+extern TempInterval *activeInterval;
 
 bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time);
 
@@ -32,7 +29,7 @@ bool isActiveDateInterval(TempInterval *interval, tm *currentDate);
 
 void printIntervals(std::vector<TempInterval *> &intervals);
 
-void getInitialIntervals(std::vector<TempInterval*> &ivs);
+void getInitialIntervals(std::vector<TempInterval *> &ivs);
 
 void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
                                  std::vector<TempInterval *> &activeIntervals, MyTime now);
@@ -42,7 +39,3 @@ TempInterval *getCurrentInterval(const std::vector<TempInterval *> &activeInterv
 void changeNightMode();
 
 void checkAndActivateIntervals();
-
-void saveIntervalVector(std::vector<TempInterval *> * intervals);
-
-#endif //SMART_THERM_TEMP_INTERVAL_FUNCTIONS_H

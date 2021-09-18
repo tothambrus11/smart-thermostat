@@ -35,7 +35,7 @@ void setupRoutes() {
     server.on("/set-normal-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
         storedData.normalTemp = request->getParam("temp")->value().toFloat();
         saveData();
-        // todo notify tempregulator
+        checkAndActivateIntervals();
         request->send(200, "text/plain", OK_RESPONSE); // todo optional error handling
     });
 
@@ -87,7 +87,6 @@ void setupRoutes() {
     });
 
     server.on("/reset-intervals", HTTP_GET, [](AsyncWebServerRequest *request) {
-        clearTempIntervalsInRAM();
         getInitialIntervals(tempIntervals);
         saveFromRAM();
         saveData();

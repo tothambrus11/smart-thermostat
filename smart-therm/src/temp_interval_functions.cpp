@@ -8,12 +8,10 @@
 #include "storage.h"
 #include "globals.h"
 
-bool forcedNightMode;
-bool forcedDayMode;
-
 bool realNightMode = false; // based on time interval
 bool actualNightMode; // affected by forced mode
 
+TempInterval *activeInterval = nullptr;
 
 bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time) {
     if (start < end) {
@@ -102,7 +100,7 @@ void printIntervals(std::vector<TempInterval *> &intervals) {
     }
 }
 
-void checkAndActivateIntervals(){
+void checkAndActivateIntervals() {
     time_t timeTime;
     time(&timeTime);
     auto t = localtime(&timeTime);
@@ -113,19 +111,25 @@ void checkAndActivateIntervals(){
     std::vector<TempInterval *> activeIntervals;
     getCurrentlyActiveIntervals(tempIntervals, t, activeIntervals, nowMyTime);
 
-    if(activeIntervals.empty()){
+    if (activeIntervals.empty()) {
         tempRegulator.setTargetTemp(storedData.normalTemp);
+        activeInterval = nullptr;
     } else {
         tempRegulator.setTargetTemp(activeIntervals[0]->temperature);
+        activeInterval = activeIntervals[0];
     }
 
     Serial.println("Active intervals: ");
     printIntervals(activeIntervals);
-    Serial.println("Forced night, forced day mode: " + String(forcedNightMode?"1":"0") + ", " + String(forcedDayMode?"1":"0"));
-    Serial.println("actual night, real night mode: " + String(actualNightMode?"1":"0") + ", " + String(realNightMode?"1":"0"));
+    Serial.println("Forced night, forced day mode: " + String(storedData.forcedNightMode ? "1" : "0") + ", " +
+    String(storedData.forcedDayMode ? "1" : "0"));
+    Serial.println("actual night, real night mode: " + String(actualNightMode ? "1" : "0") + ", " +
+                   String(realNightMode ? "1" : "0"));
 }
 
 void getInitialIntervals(std::vector<TempInterval *> &ivs) {
+    ivs.clear();
+
     TempInterval intervals_arr[] = {
             { // no
                     IntervalType::NIGHT,
@@ -338,13 +342,13 @@ void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, t
                 }
 
                 if (realNightMode2 != realNightMode) { // interval end or beginning
-                    forcedNightMode = false;
-                    forcedDayMode = false;
+                    storedData.forcedNightMode = false;
+                    storedData.forcedDayMode = false;
                 }
 
                 // affected by forced night and day mode
-                actualNightMode = realNightMode2 || forcedNightMode;
-                actualNightMode = actualNightMode && !forcedDayMode;
+                actualNightMode = realNightMode2 || storedData.forcedNightMode;
+                actualNightMode = actualNightMode && !storedData.forcedDayMode;
 
                 realNightMode = realNightMode2;
 
@@ -354,6 +358,7 @@ void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, t
                 break;
         }
     }
+    saveData();
 }
 
 
@@ -373,20 +378,17 @@ TempInterval *getCurrentInterval(const std::vector<TempInterval *> &activeInterv
 void changeNightMode() {
     if (actualNightMode) { // should be day mode
         if (realNightMode) { // éjjeli mód éjszaka
-            forcedDayMode = true;
+            storedData.forcedDayMode = true;
         } else { // éjjeli mód nappal
-            forcedNightMode = false;
+            storedData.forcedNightMode = false;
         }
     } else { // should be night mode
         if (realNightMode) { // nappali mód éjszaka
-            forcedDayMode = false;
+            storedData.forcedDayMode = false;
         } else { // nappali mód nappal
-            forcedNightMode = true;
+            storedData.forcedNightMode = true;
         }
     }
+    saveData();
 }
 
-
-void saveIntervalVector(std::vector<TempInterval *> *intervals) {
-
-}

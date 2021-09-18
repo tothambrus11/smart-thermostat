@@ -22,11 +22,11 @@ void redraw() {
 
             display.setTextAlignment(TEXT_ALIGN_RIGHT);
             display.setFont(ArialMT_Plain_16);
-            display.drawString(82, 15, stringify(tempRegulator.getTargetTemp()) + "°C");
+            display.drawString(82, 15, stringify(tempC) + "°C");
 
             display.setFont(ArialMT_Plain_24);
 
-            display.drawString(82, 32, stringify(tempC) + "°C");
+            display.drawString(82, 32, stringify(tempRegulator.getTargetTemp()) + "°C");
             break;
 
         case MAIN_MENU:

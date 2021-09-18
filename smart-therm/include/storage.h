@@ -34,6 +34,10 @@ struct StoredData {
 
     std::size_t intervalCount{};
     TempInterval intervals[MAX_INTERVAL_COUNT];
+
+    bool forcedNightMode = false;
+    bool forcedDayMode = false;
+
     unsigned int corruptionCheck{};
 };
 
@@ -48,8 +52,6 @@ void clearData();
 void checkDataCorruption();
 
 void loadIntervalsInRAM();
-
-void clearTempIntervalsInRAM();
 
 void saveFromRAM();
 

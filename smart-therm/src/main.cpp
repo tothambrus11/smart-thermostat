@@ -131,11 +131,24 @@ void setup() {
     });
 
     encoder.setOnEventListener([](bool scrolledDown) {
+        unsigned long m;
         switch (page) {
             case HOME:
                 // todo change current interval's temperature
-                tempIntervals[0]->temperature += scrolledDown ? .1f : -.1f;
+                if (activeInterval == nullptr) {
+                    storedData.normalTemp += scrolledDown ? .1f : -.1f;
+                } else {
+                    activeInterval->temperature += scrolledDown ? .1f : -.1f;
+                }
+                m = millis();
+                saveFromRAM();
+                Serial.println("1. " + String(millis() - m));
+                m = millis();
+                saveData();
+                Serial.println("2. " + String(millis() - m));
+                m = millis();
                 checkAndActivateIntervals();
+                Serial.println("3. " + String(millis() - m));
 
                 break;
             case MAIN_MENU:
