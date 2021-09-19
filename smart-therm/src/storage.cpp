@@ -5,9 +5,11 @@
 
 const unsigned int CORRUPTION_CHECK_VALUE = 12345;
 
-std::vector<TempInterval *> tempIntervals;
+std::vector<TempInterval> tempIntervals;
 
 StoredData storedData;
+bool shouldSave = false;
+unsigned long lastSavedAt = 0;
 
 //We create two fucntions for writing and reading data from the EEPROM
 template<class T>
@@ -68,31 +70,29 @@ void clearData() {
 
     storedData.normalTemp = 23.5;
 
-    getInitialIntervals(tempIntervals);
+    setInitialIntervals();
     saveFromRAM();
     saveData();
 }
 
 void initMyTimesInRAM() {
-    for (const auto &item : tempIntervals) {
-        item->startTime.init(item->startHour, item->startMinute);
-        item->endTime.init(item->endHour, item->endMinute);
+    for (auto &item : tempIntervals) {
+        item.startTime.init(item.startHour, item.startMinute);
+        item.endTime.init(item.endHour, item.endMinute);
     }
 }
 
 void saveFromRAM() {
     storedData.intervalCount = tempIntervals.size();
     for (size_t i = 0; i < tempIntervals.size(); ++i) {
-        storedData.intervals[i] = *tempIntervals[i];
+        storedData.intervals[i] = tempIntervals[i];
     }
 }
 
 void loadIntervalsInRAM() {
     tempIntervals.clear();
     for (size_t i = 0; i < storedData.intervalCount; ++i) {
-        auto b = new TempInterval();
-        *b = storedData.intervals[i]; // copy
-        tempIntervals.push_back(b);
+        tempIntervals.push_back(storedData.intervals[i]);
     }
     initMyTimesInRAM();
 }
@@ -107,18 +107,25 @@ void checkDataCorruption() {
 
 void removeInterval(int order) {
     for (size_t i = 0; i < tempIntervals.size(); i++) {
-        if (tempIntervals[i]->order == order) {
+        if (tempIntervals[i].order == order) {
             tempIntervals.erase(tempIntervals.begin() + i);
             break;
         }
-    }
+    } // todo no search
 
-    for (TempInterval *interval : tempIntervals) {
-        if (interval->order > order) {
-            interval->order--;
+    for (TempInterval &interval : tempIntervals) {
+        if (interval.order > order) {
+            interval.order--;
         }
     }
     saveFromRAM();
     saveData();
     checkAndActivateIntervals();
+}
+
+void saveDataSometimes() {
+    if (shouldSave && millis() - lastSavedAt >= 2000) {
+        saveData();
+        lastSavedAt=millis();
+    }
 }

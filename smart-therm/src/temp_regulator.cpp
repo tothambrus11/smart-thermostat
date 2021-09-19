@@ -2,7 +2,6 @@
 #include "globals.h"
 
 void TempRegulator::regulateTemp() {
-    Serial.println("Measured temperature: " + String(tempC));
     if (goingUp) {
         if (tempC >= targetTempUpperLimit) {
             setRelayState(false);

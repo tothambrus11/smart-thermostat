@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
+#include "drawer.h"
 
 const String OK_RESPONSE = "ok";
 
@@ -34,9 +35,11 @@ void setupRoutes() {
 
     server.on("/set-normal-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
         storedData.normalTemp = request->getParam("temp")->value().toFloat();
-        saveData();
+        storedData.normalTemp = max(min(50.0f, storedData.normalTemp), 0.0f);
+        shouldSave = true;
         checkAndActivateIntervals();
-        request->send(200, "text/plain", OK_RESPONSE); // todo optional error handling
+        shouldRedraw = true;
+        request->send(200, "text/plain", OK_RESPONSE);
     });
 
     server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -57,23 +60,22 @@ void setupRoutes() {
         auto arr = doc.createNestedArray("items");
         for (auto &tempInterval : tempIntervals) {
             JsonObject data = arr.createNestedObject();
-            Serial.println(tempInterval->type);
-            data["type"] = tempInterval->type;
-            data["temperature"] = tempInterval->temperature;
-            data["enabled"] = tempInterval->enabled;
-            data["repetitionFrequency"] = tempInterval->repetitionFrequency;
-            data["daysOfWeek"] = tempInterval->daysOfWeek;
-            data["startYear"] = tempInterval->startYear;
-            data["startMonth"] = tempInterval->startMonth;
-            data["startDay"] = tempInterval->startDay;
-            data["startHour"] = tempInterval->startHour;
-            data["startMinute"] = tempInterval->startMinute;
-            data["endYear"] = tempInterval->endYear;
-            data["endMonth"] = tempInterval->endMonth;
-            data["endDay"] = tempInterval->endDay;
-            data["endHour"] = tempInterval->endHour;
-            data["endMinute"] = tempInterval->endMinute;
-            data["order"] = tempInterval->order;
+            data["type"] = tempInterval.type;
+            data["temperature"] = tempInterval.temperature;
+            data["enabled"] = tempInterval.enabled;
+            data["repetitionFrequency"] = tempInterval.repetitionFrequency;
+            data["daysOfWeek"] = tempInterval.daysOfWeek;
+            data["startYear"] = tempInterval.startYear;
+            data["startMonth"] = tempInterval.startMonth;
+            data["startDay"] = tempInterval.startDay;
+            data["startHour"] = tempInterval.startHour;
+            data["startMinute"] = tempInterval.startMinute;
+            data["endYear"] = tempInterval.endYear;
+            data["endMonth"] = tempInterval.endMonth;
+            data["endDay"] = tempInterval.endDay;
+            data["endHour"] = tempInterval.endHour;
+            data["endMinute"] = tempInterval.endMinute;
+            data["order"] = tempInterval.order;
         }
 
         response->setLength();
@@ -87,7 +89,7 @@ void setupRoutes() {
     });
 
     server.on("/reset-intervals", HTTP_GET, [](AsyncWebServerRequest *request) {
-        getInitialIntervals(tempIntervals);
+        setInitialIntervals();
         saveFromRAM();
         saveData();
         request->send(200, "text/plain", OK_RESPONSE);

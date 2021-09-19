@@ -7,7 +7,9 @@
 extern const unsigned int CORRUPTION_CHECK_VALUE;
 const unsigned short WIFI_SSID_MAX_LENGTH = 32;
 const unsigned short WIFI_PWD_MAX_LENGTH = 32;
-extern std::vector<TempInterval *> tempIntervals;
+extern std::vector<TempInterval> tempIntervals;
+extern bool shouldSave;
+extern unsigned long lastSavedAt;
 
 template<class T>
 static unsigned int EEPROM_writeAnything(int ee, const T &value);
@@ -58,3 +60,5 @@ void saveFromRAM();
 void removeInterval(int order);
 
 void initMyTimesInRAM();
+
+void saveDataSometimes();

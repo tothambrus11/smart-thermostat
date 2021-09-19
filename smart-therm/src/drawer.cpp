@@ -5,6 +5,8 @@
 #include "pages.h"
 #include "temp_interval_functions.h"
 
+bool shouldRedraw = false;
+
 void redraw() {
     display.clear();
     short menuPosInt;
@@ -59,7 +61,7 @@ void redraw() {
     display.display();
 }
 
-void drawMessage(String message){
+void drawMessage(String message) {
     drawnMessage = message;
     page = DRAW_MESSAGE;
     redraw();

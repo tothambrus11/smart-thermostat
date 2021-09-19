@@ -83,7 +83,7 @@ void setup() {
 
     drawMessage("Connecting to wifi...");
 
-    WiFi.waitForConnectResult(10000);
+    WiFi.waitForConnectResult(15000);
     if (WiFi.isConnected()) {
         Serial.println("Connected");
     } else {
@@ -131,24 +131,17 @@ void setup() {
     });
 
     encoder.setOnEventListener([](bool scrolledDown) {
-        unsigned long m;
         switch (page) {
             case HOME:
                 // todo change current interval's temperature
-                if (activeInterval == nullptr) {
+                if (activeIntervalOrder == -1) {
                     storedData.normalTemp += scrolledDown ? .1f : -.1f;
                 } else {
-                    activeInterval->temperature += scrolledDown ? .1f : -.1f;
+                    tempIntervals[activeIntervalOrder].temperature += scrolledDown ? .1f : -.1f;
                 }
-                m = millis();
                 saveFromRAM();
-                Serial.println("1. " + String(millis() - m));
-                m = millis();
-                saveData();
-                Serial.println("2. " + String(millis() - m));
-                m = millis();
+                shouldSave = true;
                 checkAndActivateIntervals();
-                Serial.println("3. " + String(millis() - m));
 
                 break;
             case MAIN_MENU:
@@ -160,22 +153,23 @@ void setup() {
         redraw();
     });
 
-    tempSensor.begin([](float temp) {
-        tempC = temp;
-        tempRegulator.regulateTemp();
-
-        if (page == HOME) redraw();
-        events.send(String(tempC).c_str(), "temperature", millis());
-    });
 
     temperatureUpdateInterval.init(1000, []() {
         tempSensor.readTemperature();
-
-        checkAndActivateIntervals();
     });
 
     temperatureReadInterval.init(10, []() {
         tempSensor.onInterval();
+    });
+
+    tempSensor.begin([](float temp) {
+        tempC = temp;
+        checkAndActivateIntervals();
+
+        tempRegulator.regulateTemp();
+
+        if (page == HOME) redraw();
+        events.send(String(tempC).c_str(), "temperature", millis());
     });
 
 }
@@ -184,6 +178,11 @@ void loop() {
     Interval::checkAll();
     Button::checkAll();
     encoder.onLoop();
+    saveDataSometimes();
+    if(shouldRedraw){
+        redraw();
+        shouldRedraw = false;
+    }
 }
 
 void setupPins() {

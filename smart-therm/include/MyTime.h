@@ -12,7 +12,7 @@ public:
 
     MyTime(byte hours, byte minutes, byte seconds = 0);
 
-    MyTime(tm *time);
+    explicit MyTime(const tm &time);
 
     void init(byte hours_ = 0, byte minutes_ = 0, byte seconds_ = 0);
 
@@ -24,7 +24,7 @@ public:
 
     bool operator>=(const MyTime &rhs) const;
 
-    String toString();
+    String toString() const;
 };
 
 #endif //INTERVAL_PROCESS_2_MYTIME_H

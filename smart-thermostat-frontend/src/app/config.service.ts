@@ -13,7 +13,7 @@ export class ConfigService {
   }
 
   async init() {
-    this.serverIP = await this.http.get('https://johetajava.hu/ip-update/ip/' + environment.ipID + '.txt', {responseType: 'text'}).toPromise();
+    this.serverIP = await this.http.get('https://johetajava.hu/ip-update/ip/' + environment.ipID + '.txt?q='+Math.random(), {responseType: 'text'}).toPromise();
     this.serverBaseURl = `http://${this.serverIP}:${environment.backendPort}/`;
   }
 

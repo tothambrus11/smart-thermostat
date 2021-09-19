@@ -6,7 +6,7 @@
 
 extern bool realNightMode; // based on time interval
 extern bool actualNightMode; // affected by forced mode
-extern TempInterval *activeInterval;
+extern int activeIntervalOrder;
 
 bool isActiveTimeInterval(MyTime start, MyTime end, MyTime time);
 
@@ -15,26 +15,25 @@ bool isActiveDay(byte activeDaysOfWeek, byte currentDay);
 
 bool isActiveDay(byte activeDaysOfWeek, byte currentDay);
 
-int dayOfWeek(tm *t);
+int dayOfWeek(const tm &t);
 
-inline bool inThePast(tm date, tm now);
+bool inThePast(const tm &date, const tm &now);
 
-inline bool inTheFuture(tm date, tm now);
+bool inTheFuture(const tm &date,const tm &now);
 
-inline bool inTheFutureOrNow(tm date, tm now);
+bool inTheFutureOrNow(const tm &date, const tm &now);
 
-inline bool inThePastOrNow(tm date, tm now);
+bool inThePastOrNow(const tm &date, const tm &now);
 
-bool isActiveDateInterval(TempInterval *interval, tm *currentDate);
+bool isActiveDateInterval(const TempInterval &interval, const tm &currentDate);
 
-void printIntervals(std::vector<TempInterval *> &intervals);
+void printIntervals(std::vector<TempInterval> &intervals);
 
-void getInitialIntervals(std::vector<TempInterval *> &ivs);
+void setInitialIntervals();
 
-void getCurrentlyActiveIntervals(const std::vector<TempInterval *> &intervals, tm *t,
-                                 std::vector<TempInterval *> &activeIntervals, MyTime now);
+void getCurrentlyActiveIntervals(const tm &t, const MyTime &now);
 
-TempInterval *getCurrentInterval(const std::vector<TempInterval *> &activeIntervals);
+TempInterval *getCurrentInterval();
 
 void changeNightMode();
 
