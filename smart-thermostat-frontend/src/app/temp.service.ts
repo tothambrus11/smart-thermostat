@@ -16,7 +16,6 @@ export class TempService {
       this.targetTemp = t;
     });
 
-
     if (window.EventSource) {
       this.startEventListening();
     } else {
@@ -44,7 +43,6 @@ export class TempService {
     });
 
     eventSource.addEventListener('error', (e: any) => {
-      console.log(e.target);
       if (e.target.readyState !== EventSource.OPEN) {
         console.log('Events Disconnected');
       }
@@ -108,5 +106,9 @@ export class TempService {
 
   restart() {
     return this.http.get(`${this.config.serverBaseURl}restart`, {responseType: 'text'}).toPromise();
+  }
+
+  modifyProperty(param: string, value: string | number, order: number){
+    return this.http.get(`${this.config.serverBaseURl}modify-property?param=${param}&value=${value}&index=${Number(order)}`, {responseType: 'text'}).toPromise();
   }
 }

@@ -38,18 +38,22 @@
       </app-card-row>
 
       <app-card-row>
-        <app-temp-input placeholder="hőmérséklet" [(value)]="interval.temperature"></app-temp-input>
+        <app-temp-input placeholder="hőmérséklet" [(value)]="interval.temperature"
+                        (changed)="svc.modifyProperty('temperature', interval.temperature, interval.order)"></app-temp-input>
       </app-card-row>
 
       <app-card-row>
         <span class="inactive-color-text">Engedélyezve:</span>
-        <app-switch [(state)]="interval.enabled"></app-switch>
+        <app-switch [state]="interval.enabled"
+                    (stateChange)="interval.enabled = $event;svc.modifyProperty('enabled', interval.enabled?1:0,interval.order)"></app-switch>
       </app-card-row>
 
       <app-card-row class="flex-wrap">
         <div class="inactive-color-text">Intervallum:</div>
         <app-input-time-interval [time1]="''|timeToString:interval.startHour!:interval.startMinute!"
-                                 [time2]="''|timeToString:interval.endHour!:interval.endMinute!">
+                                 [time2]="''|timeToString:interval.endHour!:interval.endMinute!"
+                                 (time1Change)="onTime1Change($event, interval)"
+                                 (time2Change)="onTime2Change($event, interval)">
         </app-input-time-interval>
       </app-card-row>
     </app-interval-card><!-- END NIGHT TEMP CARD -->
@@ -65,12 +69,14 @@
       </app-card-row>
 
       <app-card-row>
-        <app-temp-input placeholder="hőmérséklet" [(value)]="interval.temperature"></app-temp-input>
+        <app-temp-input placeholder="hőmérséklet" [(value)]="interval.temperature"
+                        (changed)="svc.modifyProperty('temperature', interval.temperature, interval.order)"></app-temp-input>
       </app-card-row>
 
       <app-card-row>
         <span class="inactive-color-text">Engedélyezve:</span>
-        <app-switch [(state)]="interval.enabled"></app-switch>
+        <app-switch [state]="interval.enabled"
+                    (stateChange)="interval.enabled = $event; svc.modifyProperty('enabled', interval.enabled?1:0,interval.order)"></app-switch>
       </app-card-row>
 
       <app-card-row>
@@ -86,7 +92,10 @@
         <app-card-row class="flex-wrap" *ngSwitchCase="RepetitionFrequency.DAILY">
           <div class="inactive-color-text">Intervallum:</div>
           <app-input-time-interval [time1]="''|timeToString:interval.startHour!:interval.startMinute!"
-                                   [time2]="''|timeToString:interval.endHour!:interval.endMinute!"></app-input-time-interval>
+                                   [time2]="''|timeToString:interval.endHour!:interval.endMinute!"
+                                   (time1Change)="onTime1Change($event, interval)"
+                                   (time2Change)="onTime2Change($event, interval)"
+          ></app-input-time-interval>
         </app-card-row>
 
         <!-- CASE WEEKLY -->
@@ -95,11 +104,14 @@
           <app-card-row class="flex-wrap">
             <div class="inactive-color-text">Intervallum:</div>
             <app-input-time-interval [time1]="''|timeToString:interval.startHour!:interval.startMinute!"
-                                     [time2]="''|timeToString:interval.endHour!:interval.endMinute!">
+                                     [time2]="''|timeToString:interval.endHour!:interval.endMinute!"
+                                     (time1Change)="onTime1Change($event, interval)"
+                                     (time2Change)="onTime2Change($event, interval)">
             </app-input-time-interval>
           </app-card-row>
 
-          <app-select-days-of-week [(value)]="interval.daysOfWeek!"></app-select-days-of-week>
+          <app-select-days-of-week [value]="interval.daysOfWeek!"
+                                   (valueChange)="interval.daysOfWeek = $event; svc.modifyProperty('daysOfWeek', interval.daysOfWeek, interval.order)"></app-select-days-of-week>
         </ng-container>
 
         <!-- CASE NEVER -->
@@ -107,7 +119,10 @@
           <div class="inactive-color-text">Intervallum:</div>
           <app-input-datetime-range
             [dateTime1]="''|dateToString:interval.startYear!:interval.startMonth!:interval.startDay!:interval.startHour!:interval.startMinute!"
-            [dateTime2]="''|dateToString:interval.endYear!:interval.endMonth!:interval.endDay!:interval.endHour!:interval.endMinute!"></app-input-datetime-range>
+            [dateTime2]="''|dateToString:interval.endYear!:interval.endMonth!:interval.endDay!:interval.endHour!:interval.endMinute!"
+            (dateTime1Change)="onDateTime1Change($event, interval)"
+            (dateTime2Change)="onDateTime2Change($event, interval)"
+          ></app-input-datetime-range>
         </app-card-row>
 
       </ng-container>

@@ -1,12 +1,12 @@
 <app-card-row class="flex-wrap">
   <input type="time"
          [(ngModel)]="time1"
-         (input)="time1Change.emit(time1)"
+         (change)="time1Change.emit(time1)"
          class="input">
   -
   <input type="time"
          [(ngModel)]="time2"
-         (input)="time2Change.emit(time2)"
+         (change)="time2Change.emit(time2)"
          class="input">
 </app-card-row>
 
