@@ -108,7 +108,24 @@ export class TempService {
     return this.http.get(`${this.config.serverBaseURl}restart`, {responseType: 'text'}).toPromise();
   }
 
+  swapIntervals(order1: number, order2: number){
+    return this.http.get(`${this.config.serverBaseURl}change-interval-order?order1=${order1}&order2=${order2}`, {responseType: 'text'}).toPromise();
+  }
+
   modifyProperty(param: string, value: string | number, order: number){
     return this.http.get(`${this.config.serverBaseURl}modify-property?param=${param}&value=${value}&index=${Number(order)}`, {responseType: 'text'}).toPromise();
+  }
+
+  newInterval() {
+    return this.http.get(`${this.config.serverBaseURl}new-interval`, {responseType: 'text'}).toPromise();
+  }
+
+  static isLoggedIn() {
+    return localStorage.getItem("username") && localStorage.getItem("password");
+  }
+
+  static logout() {
+    localStorage.removeItem("username");
+    localStorage.removeItem("password");
   }
 }

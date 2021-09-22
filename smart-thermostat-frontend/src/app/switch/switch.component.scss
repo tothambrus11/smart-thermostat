@@ -1,7 +1,8 @@
 @use "../../colors";
+
 $h: 20px;
 
-.switch{
+.switch {
   width: 2 * $h;
   height: $h;
   background-color: #C4C4C4;
@@ -10,7 +11,7 @@ $h: 20px;
   transition: .2s;
 }
 
-.inner{
+.inner {
   border-radius: $h / 2;
   background-color: colors.$inactive;
   height: $h;
@@ -18,11 +19,11 @@ $h: 20px;
   transition: .2s;
 }
 
-div.on{
+div.on {
   background-color: colors.$accent-light;
 
-  .inner{
-    transform: translate($h,0);
+  .inner {
+    transform: translate($h, 0);
     background-color: colors.$accent;
   }
 

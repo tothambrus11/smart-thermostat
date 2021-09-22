@@ -1,5 +1,6 @@
 #include <Arduino.h>  // for type definitions
 #include <EEPROM.h>   // We need this library
+#include <globals.h>
 #include "storage.h"
 #include "temp_interval_functions.h"
 
@@ -57,11 +58,11 @@ void clearData() {
     storedData.wifiAP.passwordLength = pass.length();
     pass.toCharArray(storedData.wifiAP.password, pass.length() + 1);
 
-    ssid = "asd12345";
+    ssid = "";
     storedData.connectedWifi.ssidLength = ssid.length();
     ssid.toCharArray(storedData.connectedWifi.ssid, ssid.length() + 1);
 
-    pass = "asd12345";
+    pass = "";
     storedData.connectedWifi.passwordLength = pass.length();
     pass.toCharArray(storedData.connectedWifi.password, pass.length() + 1);
 
@@ -69,6 +70,14 @@ void clearData() {
     storedData.dstOffset = 0;
 
     storedData.normalTemp = 23.5;
+
+    String uname = "admin";
+    storedData.loginCredentials.usernameLength = uname.length();
+    uname.toCharArray(storedData.loginCredentials.username, uname.length() + 1);
+
+    pass = "admin";
+    storedData.loginCredentials.passwordLength = pass.length();
+    pass.toCharArray(storedData.loginCredentials.password, pass.length() + 1);
 
     setInitialIntervals();
     saveFromRAM();
@@ -105,7 +114,7 @@ void checkDataCorruption() {
     }
 }
 
-void removeInterval(int order) {
+void removeInterval(size_t order) {
     for (size_t i = 0; i < tempIntervals.size(); i++) {
         if (tempIntervals[i].order == order) {
             tempIntervals.erase(tempIntervals.begin() + i);
@@ -126,6 +135,6 @@ void removeInterval(int order) {
 void saveDataSometimes() {
     if (shouldSave && millis() - lastSavedAt >= 2000) {
         saveData();
-        lastSavedAt=millis();
+        lastSavedAt = millis();
     }
 }

@@ -5,8 +5,10 @@
 #include "TempInterval.h"
 
 extern const unsigned int CORRUPTION_CHECK_VALUE;
-const unsigned short WIFI_SSID_MAX_LENGTH = 32;
-const unsigned short WIFI_PWD_MAX_LENGTH = 32;
+const unsigned short WIFI_SSID_MAX_LENGTH = 16;
+const unsigned short WIFI_PWD_MAX_LENGTH = 16;
+const unsigned short LOGIN_USERNAME_MAX_LENGTH = 16;
+const unsigned short LOGIN_PASSWORD_MAX_LENGTH = 16;
 extern std::vector<TempInterval> tempIntervals;
 extern bool shouldSave;
 extern unsigned long lastSavedAt;
@@ -24,11 +26,20 @@ struct WifiCredentials {
     unsigned short passwordLength;
 };
 
+struct AdminLoginCredentials {
+    char username[LOGIN_USERNAME_MAX_LENGTH];
+    char password[LOGIN_PASSWORD_MAX_LENGTH];
+    unsigned short usernameLength;
+    unsigned short passwordLength;
+};
+
 const int MAX_INTERVAL_COUNT = 20;
 
 struct StoredData {
     WifiCredentials wifiAP{};
     WifiCredentials connectedWifi{};
+    AdminLoginCredentials loginCredentials{};
+
     unsigned int timezoneOffset{}; // minutes
     unsigned int dstOffset{}; // daylight saving time minutes
 
@@ -57,7 +68,7 @@ void loadIntervalsInRAM();
 
 void saveFromRAM();
 
-void removeInterval(int order);
+void removeInterval(size_t order);
 
 void initMyTimesInRAM();
 

@@ -1,8 +1,8 @@
-<main>
+<form (submit)="onSubmit()">
   <h1>Bejelentkezés</h1>
-  <input class="input" [(ngModel)]="username" type="text" placeholder="Felhasználónév">
-  <input class="input" [(ngModel)]="password" type="password" placeholder="Jelszó">
-  <input type="submit" value="Belépés" routerLink="/intervals">
+  <input class="input" name="username" [(ngModel)]="username" type="text" placeholder="Felhasználónév">
+  <input class="input" name="password" [(ngModel)]="password" type="password" placeholder="Jelszó">
+  <input type="submit" value="Belépés">
   <div id="wbg"></div>
-</main>
+</form>
 <footer>Készítette: <a href="https://johetajava.hu/" style="text-decoration: none; color: inherit">Tóth Ambrus</a></footer>

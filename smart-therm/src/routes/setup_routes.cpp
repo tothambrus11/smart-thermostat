@@ -1,5 +1,7 @@
 #include <storage.h>
 #include <temp_interval_functions.h>
+#include <interval_type.h>
+#include <repetition_frequency.h>
 #include "globals.h"
 #include "Arduino.h"
 #include "ArduinoJson.h"
@@ -8,32 +10,41 @@
 
 const String OK_RESPONSE = "ok";
 
-
+bool checkAuthentication(AsyncWebServerRequest *req){
+    // todo auth user
+    return true;
+}
 void setupRoutes() {
 
     DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
 
     server.on("/get-is-heating", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         request->send(200, "text/plain", tempRegulator.goingUp ? "1" : "0");
     });
 
     server.on("/get-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         request->send(200, "text/plain", String(tempC));
     });
 
     server.on("/get-target-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         request->send(200, "text/plain", String(tempRegulator.getTargetTemp()));
     });
 
     server.on("/get-normal-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         request->send(200, "text/plain", String(storedData.normalTemp));
     });
 
     server.on("/get-normal-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         request->send(200, "text/plain", String(storedData.normalTemp));
     });
 
     server.on("/set-normal-temp", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         storedData.normalTemp = request->getParam("temp")->value().toFloat();
         storedData.normalTemp = max(min(50.0f, storedData.normalTemp), 0.0f);
         shouldSave = true;
@@ -43,14 +54,17 @@ void setupRoutes() {
     });
 
     server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         clearData();
         request->send(200, "text/plain", OK_RESPONSE);
     });
     server.on("/get-size", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         request->send(200, "text/plain", String(storedData.intervalCount));
     });
 
     server.on("/modify-property", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
         auto param = request->getParam("param")->value();
         auto value = request->getParam("value")->value();
         size_t intervalIndex = request->getParam("index")->value().toInt();
@@ -107,6 +121,7 @@ void setupRoutes() {
 
 
     server.on("/get-intervals", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
 
         auto *response = new AsyncJsonResponse(false, 7000);
         JsonObject doc = response->getRoot();
@@ -138,13 +153,41 @@ void setupRoutes() {
         request->send(response);
     });
 
+    server.on("/change-interval-order", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
+        int order1 = request->getParam("order1")->value().toInt();
+        int order2 = request->getParam("order2")->value().toInt();
+
+        if (order1 < 0 || order2 < 0 || order1 >= tempIntervals.size() || order2 >= tempIntervals.size() ||
+            order1 == order2) {
+            request->send(400, "text/plain", "");
+            return;
+        }
+
+        std::swap(tempIntervals[order1], tempIntervals[order2]);
+        std::swap(tempIntervals[order1].order, tempIntervals[order2].order);
+        saveFromRAM();
+        checkAndActivateIntervals();
+        shouldSave = true;
+        shouldRedraw = true;
+        request->send(200, "text/plain", OK_RESPONSE + String(OK_RESPONSE));
+    });
+
     server.on("/remove-interval", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
+
         int order = request->getParam("order")->value().toInt();
+        if (order >= tempIntervals.size() || order < 0 || tempIntervals[order].type == IntervalType::NIGHT) {
+            request->send(400);
+            return;
+        }
         removeInterval(order);
         request->send(200, "text/plain", OK_RESPONSE + String(order));
     });
 
     server.on("/reset-intervals", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
+
         setInitialIntervals();
         saveFromRAM();
         saveData();
@@ -153,8 +196,37 @@ void setupRoutes() {
 
 
     server.on("/restart", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
+
         request->send(200, "text/plain", OK_RESPONSE);
         ESP.restart();
+    });
+
+    server.on("/new-interval", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!checkAuthentication(request)) return;
+
+        tempIntervals.push_back({
+            IntervalType::CUSTOM,
+            23,
+            false,
+            RepetitionFrequency::DAILY,
+            0,
+            0,
+            0,
+            0,
+            10,
+            0,
+            0,
+            0,
+            0,
+            14,
+            0,
+            static_cast<int>(tempIntervals.size())
+        });
+        saveFromRAM();
+        shouldSave=true;
+        // Redraw and check is not needed since the interval is disabled by default.
+        request->send(200, "text/plain", OK_RESPONSE);
     });
 
 

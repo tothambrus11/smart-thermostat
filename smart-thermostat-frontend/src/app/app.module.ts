@@ -23,11 +23,13 @@ import {CheckboxComponent} from './checkbox/checkbox.component';
 import {SelectDaysOfWeekComponent} from './select-days-of-week/select-days-of-week.component';
 import {IntervalCardComponent} from './interval-card/interval-card.component';
 import {AlertComponent} from './alert/alert.component';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from '@angular/common/http';
 import {ConfigService} from './config.service';
 import {APP_INITIALIZER} from '@angular/core';
-import { TempCircleComponent } from './temp-circle/temp-circle.component';
-import { TempPipe } from './temp.pipe';
+import {TempCircleComponent} from './temp-circle/temp-circle.component';
+import {TempPipe} from './temp.pipe';
+import {BasicAuthInterceptor} from './auth-interceptor';
+import {ErrorInterceptor} from './logout-interceptor';
 
 @NgModule({
   declarations: [
@@ -66,7 +68,9 @@ import { TempPipe } from './temp.pipe';
       useFactory: ConfigService.factory,
       deps: [HttpClient, ConfigService],
       multi: true
-    }
+    },
+    {provide: HTTP_INTERCEPTORS, useClass: BasicAuthInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
   ],
   bootstrap: [AppComponent]
 })

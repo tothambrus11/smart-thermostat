@@ -1,8 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import {StoredInterval, IntervalType, repetitionFrequenciesLocal, RepetitionFrequency} from '../interval';
+import {IntervalType, repetitionFrequenciesLocal, RepetitionFrequency, StoredInterval} from '../interval';
 import {TempService} from '../temp.service';
 import {AlertService} from '../alert.service';
 import {DateToStringPipe} from '../date-to-string.pipe';
+
+let addingNow = false;
 
 @Component({
   selector: 'app-intervals',
@@ -51,7 +53,6 @@ export class IntervalsComponent implements OnInit {
         interval.endHour = d.getHours();
         interval.endMinute = d.getMinutes();
 
-
         break;
       case RepetitionFrequency.WEEKLY:
         interval.daysOfWeek = 0;
@@ -72,7 +73,7 @@ export class IntervalsComponent implements OnInit {
           let cDate = DateToStringPipe.transform(0, interval.startYear!, interval.startMonth!, interval.startDay!, interval.startHour!, interval.startMinute!);
           this.svc.modifyProperty('startDateTime', cDate, interval.order).then(() => {
             this.svc.modifyProperty('endDateTime', cDate, interval.order);
-            console.log(cDate)
+            console.log(cDate);
           });
           break;
         case RepetitionFrequency.WEEKLY:
@@ -91,8 +92,10 @@ export class IntervalsComponent implements OnInit {
   up(currentInterval: StoredInterval) {
     for (let interval of this.intervals) {
       if (interval.order == currentInterval.order - 1) {
-        interval.order++;
-        currentInterval.order--;
+        this.svc.swapIntervals(interval.order, currentInterval.order).then(() => {
+          interval.order++;
+          currentInterval.order--;
+        });
         // todo save
         break;
       }
@@ -102,9 +105,11 @@ export class IntervalsComponent implements OnInit {
   down(currentInterval: StoredInterval) {
     for (let interval of this.intervals) {
       if (interval.order == currentInterval.order + 1) {
-        interval.order--;
-        currentInterval.order++;
-        // todo save
+
+        this.svc.swapIntervals(interval.order, currentInterval.order).then(() => {
+          interval.order--;
+          currentInterval.order++;
+        });
         break;
       }
     }
@@ -175,5 +180,27 @@ export class IntervalsComponent implements OnInit {
     interval.endHour = Number(time[0]);
     interval.endMinute = Number(time[1]);
     this.svc.modifyProperty('endDateTime', $event, interval.order);
+  }
+
+  newInterval() {
+    if (addingNow) {
+      return;
+    }
+    addingNow = true;
+    this.svc.newInterval().then(() => {
+
+      this.intervals.push({
+        type: IntervalType.CUSTOM,
+        temperature: 23,
+        enabled: false,
+        repetitionFrequency: RepetitionFrequency.DAILY,
+        startHour: 10,
+        startMinute: 0,
+        endHour: 14,
+        endMinute: 0,
+        order: this.intervals.length
+      }); // should be in sync with the backend new-interval route's stuff
+      addingNow = false;
+    });
   }
 }
