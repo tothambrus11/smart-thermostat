@@ -337,6 +337,9 @@ void getCurrentlyActiveIntervals(const tm &t, const MyTime &now) {
         if (isActiveInterval(interval, t, now, currentDay)) {
             activeIntervals.push_back(interval);
         }
+        if (interval.type == IntervalType::NIGHT && !interval.enabled) {
+            actualNightMode = false;
+        }
     }
 }
 
@@ -354,6 +357,6 @@ void changeNightMode() {
             storedData.forcedNightMode = true;
         }
     }
-    shouldSave=true;
+    shouldSave = true;
 }
 
