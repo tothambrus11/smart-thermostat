@@ -27,4 +27,11 @@ export class AlertComponent implements OnInit {
     }
     this.alertService.alertMessage = undefined;
   }
+
+  close(){
+    if(this.alertService.alertMessage!.onClose){
+      this.alertService.alertMessage!.onClose();
+    }
+    this.alertService.alertMessage = undefined;
+  }
 }

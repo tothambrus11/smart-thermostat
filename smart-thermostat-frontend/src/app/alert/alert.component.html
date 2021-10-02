@@ -3,6 +3,10 @@
     <h2>{{alertService.alertMessage.title}}</h2>
     <p>{{alertService.alertMessage.message}}</p>
     <div class="btns">
+      <input *ngIf="alertService.alertMessage.showCloseButton"
+             type="button"
+             [value]="alertService.alertMessage.closeButtonText"
+             (click)="close()">
       <input *ngIf="alertService.alertMessage.showCancelButton"
              type="button"
              [value]="alertService.alertMessage.cancelButtonText"
@@ -11,7 +15,7 @@
              type="button"
              [class.warning]="alertService.alertMessage.isWarning"
              [value]="alertService.alertMessage.okButtonText"
-      (click)="ok()">
+             (click)="ok()">
     </div>
   </div>
 </div>

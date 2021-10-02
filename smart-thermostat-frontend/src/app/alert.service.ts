@@ -7,6 +7,7 @@ export interface AlertMessage {
   showOkButton?: boolean;
   showCloseButton?: boolean;
   cancelButtonText?: string;
+  closeButtonText?: string;
   okButtonText?: string;
   icon: string;
   onCancel?: () => void;
@@ -28,7 +29,7 @@ export class AlertService {
   alert(alertMessage: AlertMessage) {
     alertMessage.cancelButtonText ||= 'Mégse';
     alertMessage.okButtonText ||= 'Ok';
-
+    alertMessage.closeButtonText ||= 'Bezárás'
     this.alertMessage = alertMessage;
   }
 

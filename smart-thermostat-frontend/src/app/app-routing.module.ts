@@ -5,23 +5,27 @@ import {IntervalsComponent} from "./intervals/intervals.component";
 import {StatsComponent} from "./stats/stats.component";
 import {InformationComponent} from "./information/information.component";
 import {LogoutComponent} from "./logout/logout.component";
+import {AuthGuard} from './auth.guard';
 
 const routes: Routes = [
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
   },
   {
     path: 'intervals',
-    component: IntervalsComponent
+    component: IntervalsComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'stats',
-    component: StatsComponent
+    component: StatsComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'information',
-    component: InformationComponent
+    component: InformationComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'logout',

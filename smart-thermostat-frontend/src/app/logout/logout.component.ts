@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {Router} from "@angular/router";
+import {TempService} from '../temp.service';
 
 @Component({
   selector: 'app-logout',
@@ -12,6 +13,7 @@ export class LogoutComponent implements OnInit {
 
   ngOnInit(): void {
     // todo logout
+    TempService.logout();
     this.router.navigate(["/login"])
   }
 

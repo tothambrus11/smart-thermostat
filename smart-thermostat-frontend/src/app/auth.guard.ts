@@ -5,14 +5,11 @@ import {TempService} from './temp.service';
 
 @Injectable({providedIn: 'root'})
 export class AuthGuard implements CanActivate {
-  constructor(
-    private router: Router,
-    private authenticationService: TempService
-  ) {
+  constructor(private router: Router) {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    if (this.authenticationService.isLoggedIn()) {
+    if (TempService.isLoggedIn()) {
       return true;
     }
 

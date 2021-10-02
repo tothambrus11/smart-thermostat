@@ -135,9 +135,16 @@ void setup() {
             case HOME:
                 // todo change current interval's temperature
                 if (activeIntervalOrder == -1) {
-                    storedData.normalTemp += scrolledDown ? .1f : -.1f;
+                    storedData.normalTemp *= 10;
+                    storedData.normalTemp += scrolledDown ? 1 : -1;
+                    storedData.normalTemp = round(storedData.normalTemp);
+                    storedData.normalTemp /= 10;
                 } else {
-                    tempIntervals[activeIntervalOrder].temperature += scrolledDown ? .1f : -.1f;
+                    float &temp = tempIntervals[activeIntervalOrder].temperature;
+                    temp *= 10;
+                    temp += scrolledDown ? 1 : -1;
+                    temp = round(temp);
+                    temp /= 10;
                 }
                 saveFromRAM();
                 shouldSave = true;
@@ -179,7 +186,7 @@ void loop() {
     Button::checkAll();
     encoder.onLoop();
     saveDataSometimes();
-    if(shouldRedraw){
+    if (shouldRedraw) {
         redraw();
         shouldRedraw = false;
     }

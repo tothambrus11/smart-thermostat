@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {StoredInterval} from './interval';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {ConfigService} from './config.service';
 
 @Injectable({
@@ -12,9 +12,11 @@ export class TempService {
   isHeating = true;
 
   constructor(private http: HttpClient, private config: ConfigService) {
-    this.getTargetTemp().then(t => {
-      this.targetTemp = t;
-    });
+    if(TempService.isLoggedIn()){
+      this.getTargetTemp().then(t => {
+        this.targetTemp = t;
+      });
+    }
 
     if (window.EventSource) {
       this.startEventListening();
@@ -61,71 +63,91 @@ export class TempService {
     }, 1000);
   }
 
+  get authData() {
+    return {
+      username: localStorage.getItem('username'),
+      password: localStorage.getItem('password'),
+    };
+  }
+
   async getCurrentTemp(): Promise<number> {
-    let temp = await this.http.get(`${this.config.serverBaseURl}get-temp`, {responseType: 'text'}).toPromise();
+    let temp = await this.getWithCredentials(`get-temp`, {responseType: 'text'});
     return Number(temp);
   }
 
   setNormalTemp(temp: number): void {
-    this.http.get(`${this.config.serverBaseURl}set-normal-temp?temp=${temp}`, {responseType: 'text'}).toPromise()
+    this.getWithCredentials(`set-normal-temp?temp=${temp}`,  {responseType: 'text'})
       .catch(e => {
         // todo error handling
       });
   }
 
   async getNormalTemp(): Promise<number> {
-    let temp = await this.http.get(`${this.config.serverBaseURl}get-normal-temp`, {responseType: 'text'}).toPromise();
+    let temp = await this.getWithCredentials(`get-normal-temp`,  {responseType: 'text'})
     return Number(temp);
   }
 
   getIntervalsStoredData(): Promise<{ items: StoredInterval[], normalTemp: number }> {
-    return this.http.get(`${this.config.serverBaseURl}get-intervals`).toPromise() as Promise<any>;
+    return this.getWithCredentials(`get-intervals`) as Promise<any>;
   }
 
   async getTargetTemp(): Promise<number> {
-    let temp = await this.http.get(`${this.config.serverBaseURl}get-target-temp`, {responseType: 'text'}).toPromise();
+    let temp = await this.getWithCredentials(`get-target-temp`,  {responseType: 'text'});
     return Number(temp);
   }
 
   async getIsHeating(): Promise<boolean> {
-    let temp = await this.http.get(`${this.config.serverBaseURl}get-is-heating`, {responseType: 'text'}).toPromise();
+    let temp = await this.getWithCredentials(`get-is-heating`, {responseType: 'text'});
     return temp == '1';
   }
 
-  async deleteInterval(order: number): Promise<any>{
-    return this.http.get(`${this.config.serverBaseURl}remove-interval?order=${order}`, {responseType: 'text'}).toPromise();
+  async deleteInterval(order: number): Promise<any> {
+    return this.getWithCredentials(`remove-interval?order=${order}`, {responseType: 'text'});
   }
 
   resetEverything() {
-    return this.http.get(`${this.config.serverBaseURl}reset`, {responseType: 'text'}).toPromise();
+    return this.getWithCredentials(`reset`, {responseType: 'text'});
   }
 
   resetIntervals() {
-    return this.http.get(`${this.config.serverBaseURl}reset-intervals`, {responseType: 'text'}).toPromise();
+    return this.getWithCredentials(`reset-intervals`, {responseType: 'text'});
   }
 
   restart() {
-    return this.http.get(`${this.config.serverBaseURl}restart`, {responseType: 'text'}).toPromise();
+    return this.getWithCredentials(`restart`, {responseType: 'text'});
   }
 
-  swapIntervals(order1: number, order2: number){
-    return this.http.get(`${this.config.serverBaseURl}change-interval-order?order1=${order1}&order2=${order2}`, {responseType: 'text'}).toPromise();
+  swapIntervals(order1: number, order2: number) {
+    return this.getWithCredentials(`change-interval-order?order1=${order1}&order2=${order2}`, {responseType: 'text'});
   }
 
-  modifyProperty(param: string, value: string | number, order: number){
-    return this.http.get(`${this.config.serverBaseURl}modify-property?param=${param}&value=${value}&index=${Number(order)}`, {responseType: 'text'}).toPromise();
+  modifyProperty(param: string, value: string | number, order: number) {
+    return this.getWithCredentials(`modify-property?param=${param}&value=${value}&index=${Number(order)}`, {responseType: 'text'});
   }
 
   newInterval() {
-    return this.http.get(`${this.config.serverBaseURl}new-interval`, {responseType: 'text'}).toPromise();
+    return this.getWithCredentials('new-interval', {responseType: 'text'});
   }
 
   static isLoggedIn() {
-    return localStorage.getItem("username") && localStorage.getItem("password");
+    return localStorage.getItem('username') && localStorage.getItem('password');
   }
 
   static logout() {
-    localStorage.removeItem("username");
-    localStorage.removeItem("password");
+    localStorage.removeItem('username');
+    localStorage.removeItem('password');
+  }
+
+  getWithCredentials(route: string, options_: any = {}) {
+    let body = new URLSearchParams();
+    body.set('username', localStorage.getItem('username') || '');
+    body.set('password', localStorage.getItem('password') || '');
+
+    let options = {
+      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+      ...options_
+    };
+
+    return this.http.post(this.config.serverBaseURl + route, body.toString(), options).toPromise() as Promise<any>;
   }
 }

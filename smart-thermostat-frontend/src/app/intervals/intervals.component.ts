@@ -201,6 +201,17 @@ export class IntervalsComponent implements OnInit {
         order: this.intervals.length
       }); // should be in sync with the backend new-interval route's stuff
       addingNow = false;
-    });
+    })
+      .catch((e)=>{
+        this.alertService.alert({
+          title: "Error",
+          message: e.message,
+          showOkButton: false,
+          showCloseButton: true,
+          showCancelButton: false,
+          icon: 'error'
+        });
+        addingNow = false;
+      });
   }
 }
