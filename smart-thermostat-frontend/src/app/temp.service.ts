@@ -12,7 +12,7 @@ export class TempService {
   isHeating = true;
 
   constructor(private http: HttpClient, private config: ConfigService) {
-    if(TempService.isLoggedIn()){
+    if (TempService.isLoggedIn()) {
       this.getTargetTemp().then(t => {
         this.targetTemp = t;
       });
@@ -70,20 +70,29 @@ export class TempService {
     };
   }
 
+  get username() {
+    return localStorage.getItem('username');
+  }
+
+  get password() {
+    return localStorage.getItem('password');
+  }
+
+  getActiveInterval() {
+    return this.getWithCredentials(`get-active-interval`);
+  }
+
   async getCurrentTemp(): Promise<number> {
     let temp = await this.getWithCredentials(`get-temp`, {responseType: 'text'});
     return Number(temp);
   }
 
   setNormalTemp(temp: number): void {
-    this.getWithCredentials(`set-normal-temp?temp=${temp}`,  {responseType: 'text'})
-      .catch(e => {
-        // todo error handling
-      });
+    this.getWithCredentials(`set-normal-temp?temp=${temp}`, {responseType: 'text'});
   }
 
   async getNormalTemp(): Promise<number> {
-    let temp = await this.getWithCredentials(`get-normal-temp`,  {responseType: 'text'})
+    let temp = await this.getWithCredentials(`get-normal-temp`, {responseType: 'text'});
     return Number(temp);
   }
 
@@ -92,7 +101,7 @@ export class TempService {
   }
 
   async getTargetTemp(): Promise<number> {
-    let temp = await this.getWithCredentials(`get-target-temp`,  {responseType: 'text'});
+    let temp = await this.getWithCredentials(`get-target-temp`, {responseType: 'text'});
     return Number(temp);
   }
 
@@ -117,6 +126,14 @@ export class TempService {
     return this.getWithCredentials(`restart`, {responseType: 'text'});
   }
 
+  getNetworkData() {
+    return this.getWithCredentials('get-network-data');
+  }
+
+  getApCredentials() {
+    return this.getWithCredentials('get-ap-credentials');
+  }
+
   swapIntervals(order1: number, order2: number) {
     return this.getWithCredentials(`change-interval-order?order1=${order1}&order2=${order2}`, {responseType: 'text'});
   }
@@ -138,10 +155,14 @@ export class TempService {
     localStorage.removeItem('password');
   }
 
-  getWithCredentials(route: string, options_: any = {}) {
+  getWithCredentials(route: string, options_: any = {}, postData: any = {}) {
     let body = new URLSearchParams();
     body.set('username', localStorage.getItem('username') || '');
     body.set('password', localStorage.getItem('password') || '');
+
+    for (let key in postData) {
+      body.set(key, postData[key]);
+    }
 
     let options = {
       headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
@@ -149,5 +170,9 @@ export class TempService {
     };
 
     return this.http.post(this.config.serverBaseURl + route, body.toString(), options).toPromise() as Promise<any>;
+  }
+
+  setWifiCredentials(ssid: string, password: string) {
+    return this.getWithCredentials('set-wifi-credentials', {}, {wifiSSID: ssid, wifiPassword: password});
   }
 }

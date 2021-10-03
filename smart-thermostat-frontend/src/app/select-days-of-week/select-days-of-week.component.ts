@@ -15,7 +15,7 @@ function nthBit(number: number, n: number) {
   return (number >> n) & 1;
 }
 
-function numberToBits(number: number, arrayToAdd: boolean[]) {
+export function numberToBits(number: number, arrayToAdd: boolean[]) {
   for (let i = 0; i < 7; i++) {
     arrayToAdd.unshift(!!nthBit(number, i));
   }

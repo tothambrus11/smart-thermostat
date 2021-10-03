@@ -3,6 +3,7 @@
 #include "ESPAsyncWebServer.h"
 #include "pages.h"
 #include "SparkFunHTU21D.h"
+#define SERVER_PORT 3001
 
 extern SSD1306Wire display;
 extern TempRegulator tempRegulator;

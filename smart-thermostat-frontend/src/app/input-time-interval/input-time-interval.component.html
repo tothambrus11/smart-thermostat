@@ -8,5 +8,6 @@
          [(ngModel)]="time2"
          (change)="time2Change.emit(time2)"
          class="input">
+  <div class="inactive-color-text" *ngIf="time1 == time2">egész nap</div>
 </app-card-row>
 

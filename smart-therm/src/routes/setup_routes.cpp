@@ -162,6 +162,80 @@ void setupRoutes() {
         request->send(response);
     });
 
+    server.on("/get-network-data", HTTP_ANY, [](AsyncWebServerRequest *request) {
+        if (!checkAuthentication(request)) return;
+
+        auto *response = new AsyncJsonResponse(false, 256);
+        JsonObject doc = response->getRoot();
+
+        doc["wifiSSID"] = String(storedData.connectedWifi.ssid).substring(0, storedData.connectedWifi.ssidLength);
+        doc["localIP"] = WiFi.localIP().toString();
+        doc["mac"] = WiFi.macAddress();
+        doc["port"] = SERVER_PORT;
+
+        response->setLength();
+        request->send(response);
+    });
+
+    server.on("/get-ap-credentials", HTTP_ANY, [](AsyncWebServerRequest *request) {
+        if (!checkAuthentication(request)) return;
+
+        auto *response = new AsyncJsonResponse(false, 256);
+        JsonObject doc = response->getRoot();
+
+        doc["ssid"] = String(storedData.wifiAP.ssid).substring(0,storedData.wifiAP.ssidLength);
+        doc["password"] = String(storedData.wifiAP.password).substring(0,storedData.wifiAP.passwordLength);
+
+        response->setLength();
+        request->send(response);
+    });
+
+    server.on("/set-wifi-credentials", HTTP_ANY, [](AsyncWebServerRequest *request) {
+        if (!checkAuthentication(request)) return;
+
+        String ssid = request->getParam("wifiSSID", true)->value();
+        String password = request->getParam("wifiPassword", true)->value();
+
+        ssid.toCharArray(storedData.connectedWifi.ssid, ssid.length() + 1);
+        password.toCharArray(storedData.connectedWifi.password, password.length() + 1);
+
+        storedData.connectedWifi.ssidLength = ssid.length();
+        storedData.connectedWifi.passwordLength = password.length();
+
+        shouldSave = true;
+        request->send(200,"application/json", "null");
+    });
+
+    server.on("/get-active-interval", HTTP_ANY, [](AsyncWebServerRequest *request) {
+        if (!checkAuthentication(request)) return;
+
+        if (activeIntervalOrder != -1) {
+            auto *response = new AsyncJsonResponse(false, 7000);
+            auto &tempInterval = tempIntervals[activeIntervalOrder];
+            JsonObject doc = response->getRoot();
+            doc["type"] = tempInterval.type;
+            doc["temperature"] = tempInterval.temperature;
+            doc["enabled"] = tempInterval.enabled;
+            doc["repetitionFrequency"] = tempInterval.repetitionFrequency;
+            doc["daysOfWeek"] = tempInterval.daysOfWeek;
+            doc["startYear"] = tempInterval.startYear;
+            doc["startMonth"] = tempInterval.startMonth;
+            doc["startDay"] = tempInterval.startDay;
+            doc["startHour"] = tempInterval.startHour;
+            doc["startMinute"] = tempInterval.startMinute;
+            doc["endYear"] = tempInterval.endYear;
+            doc["endMonth"] = tempInterval.endMonth;
+            doc["endDay"] = tempInterval.endDay;
+            doc["endHour"] = tempInterval.endHour;
+            doc["endMinute"] = tempInterval.endMinute;
+            doc["order"] = tempInterval.order;
+            response->setLength();
+            request->send(response);
+        } else {
+            request->send(200, "application/json", "null");
+        }
+    });
+
     server.on("/change-interval-order", HTTP_ANY, [](AsyncWebServerRequest *request) {
         if (!checkAuthentication(request)) return;
         int order1 = request->getParam("order1")->value().toInt();

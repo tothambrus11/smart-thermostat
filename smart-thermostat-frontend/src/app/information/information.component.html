@@ -5,6 +5,152 @@
 <div class="card-container">
   <app-temp-circle></app-temp-circle>
 
+  <app-card *ngIf="!currentInterval">
+    <app-card-row>
+      <h2>
+        <span>Aktív intervallum: </span>
+        <span class="accent-color">
+          normális hőmérséklet
+      </span>
+      </h2>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Hőmérséklet:</span>
+      <span class="accent-color">{{normalTemp}} °C</span>
+    </app-card-row>
+
+    <app-card-row>
+      <a routerLink="/intervals">
+        <input type="button" value="Intervallumok szerkesztése">
+      </a>
+    </app-card-row>
+  </app-card>
+
+  <app-card *ngIf="currentInterval">
+    <app-card-row>
+      <h2>
+        <span>Aktív intervallum: </span>
+        <span class="accent-color" [ngSwitch]="currentInterval.type">
+          <ng-container *ngSwitchCase="IntervalType.CUSTOM">saját intervallum</ng-container>
+          <ng-container *ngSwitchCase="IntervalType.NIGHT">éjszaka</ng-container>
+        </span>
+      </h2>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Hőmérséklet:</span>
+      <span class="accent-color">{{currentInterval.temperature}} °C</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Ismétlés:</span>
+      <span class="accent-color" [ngSwitch]="currentInterval.repetitionFrequency">
+        <ng-container *ngSwitchCase="RepetitionFrequency.DAILY">naponta</ng-container>
+        <ng-container *ngSwitchCase="RepetitionFrequency.WEEKLY">hetente - {{weeklyDaysOfWeek}}</ng-container>
+        <ng-container *ngSwitchCase="RepetitionFrequency.NEVER">soha</ng-container>
+      </span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Intervallum: </span>
+      <span class="accent-color" [ngSwitch]="currentInterval.repetitionFrequency">
+        <ng-container *ngSwitchCase="RepetitionFrequency.NEVER">
+          {{currentInterval.startYear}}.{{currentInterval.startMonth | number:'2.0'}}
+          .{{currentInterval.startDay | number:'2.0'}} {{currentInterval.startHour|number:'2.0'}}
+          :{{currentInterval.startMinute|number:'2.0'}} -
+          {{currentInterval.endYear}}.{{currentInterval.endMonth | number:'2.0'}}
+          .{{currentInterval.endDay | number:'2.0'}} {{currentInterval.endHour|number:'2.0'}}
+          :{{currentInterval.endMinute|number:'2.0'}}
+        </ng-container>
+        <ng-container *ngSwitchDefault>
+          {{currentInterval.startHour|number:'2.0'}}:{{currentInterval.startMinute|number:'2.0'}} -
+          {{currentInterval.endHour|number:'2.0'}}:{{currentInterval.endMinute|number:'2.0'}}
+        </ng-container>
+      </span>
+    </app-card-row>
+    <app-card-row>
+      <a routerLink="/intervals">
+        <input type="button" value="Intervallumok szerkesztése">
+      </a>
+    </app-card-row>
+
+  </app-card>
+
+  <app-card *ngIf="nd">
+    <app-card-row>
+      <h2>Hálózati kapcsolat</h2>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Csatlakozva a következőhöz:</span>
+      <span class="accent-color">{{nd.wifiSSID}}</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Publikus IP cím:</span>
+      <span class="accent-color">{{nd.publicIp}}</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Lokális IP cím:</span>
+      <span class="accent-color">{{nd.localIP}}</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Szerver port:</span>
+      <span class="accent-color">{{nd.port}}</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">MAC cím:</span>
+      <span class="accent-color">{{nd.mac}}</span>
+    </app-card-row>
+    <app-card-row>
+        <input type="button" value="Kapcsolódás másik WIFI hálózathoz" (click)="connectWifi.opened=true">
+    </app-card-row>
+    <app-connect-to-another-wifi #connectWifi [connectedWifiName]="nd.wifiSSID"></app-connect-to-another-wifi>
+  </app-card>
+
+  <app-card>
+    <app-card-row>
+      <h2>Adminisztráció</h2>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Bejelentkezési felhasználónév: </span>
+      <span class="accent-color">{{tempService.username}}</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Bejelentkezési jelszó: </span>
+      <ng-container *ngIf="hidePassword">
+        <span class="accent-color">••••••••••</span>
+        <span class="accent-color material-icons" (click)="hidePassword=false">visibility</span>
+      </ng-container>
+      <ng-container class="accent-color" *ngIf="!hidePassword">
+        <span class="accent-color">{{tempService.password}}</span>
+        <span class="accent-color material-icons" (click)="hidePassword=true">visibility_off</span>
+      </ng-container>
+    </app-card-row>
+    <app-card-row>
+      <input type="button" value="Szerkesztés">
+    </app-card-row>
+  </app-card>
+
+  <app-card *ngIf="ap">
+    <app-card-row>
+      <h2>Saját WiFi hozzáférési pont</h2>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">SSID:</span>
+      <span class="accent-color">{{ap.ssid}}</span>
+    </app-card-row>
+    <app-card-row>
+      <span class="inactive-color-text">Jelszó:</span>
+      <ng-container *ngIf="hideAPPassword">
+        <span class="accent-color">••••••••••</span>
+        <span class="accent-color material-icons" (click)="hideAPPassword=false">visibility</span>
+      </ng-container>
+      <ng-container class="accent-color" *ngIf="!hideAPPassword">
+        <span class="accent-color">{{ap.password}}</span>
+        <span class="accent-color material-icons" (click)="hideAPPassword=true">visibility_off</span>
+      </ng-container>
+    </app-card-row>
+    <app-card-row>
+      <input type="button" value="Szerkesztés">
+    </app-card-row>
+  </app-card>
+
   <app-card>
     <app-card-row>
       <h2>Hasznos dolgok</h2>
@@ -18,4 +164,5 @@
       <input type="button" value="Újraindítás" (click)="restart()">
     </app-card-row>
   </app-card>
+
 </div>

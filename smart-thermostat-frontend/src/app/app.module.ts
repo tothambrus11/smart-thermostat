@@ -30,6 +30,8 @@ import {TempCircleComponent} from './temp-circle/temp-circle.component';
 import {TempPipe} from './temp.pipe';
 import {BasicAuthInterceptor} from './auth-interceptor';
 import {ErrorInterceptor} from './logout-interceptor';
+import { ConnectToAnotherWifiComponent } from './connect-to-another-wifi/connect-to-another-wifi.component';
+import { PopupContainerComponent } from './popup-container/popup-container.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +56,9 @@ import {ErrorInterceptor} from './logout-interceptor';
     IntervalCardComponent,
     AlertComponent,
     TempCircleComponent,
-    TempPipe
+    TempPipe,
+    ConnectToAnotherWifiComponent,
+    PopupContainerComponent
   ],
   imports: [
     BrowserModule,

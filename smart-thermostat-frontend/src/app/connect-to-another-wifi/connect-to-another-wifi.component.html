@@ -1,0 +1,11 @@
+<app-popup-container *ngIf="opened">
+  <form style="display: flex; flex-direction: column; gap: 16px" autocomplete="off">
+    <h2>Kapcsolódás másik WiFi hálózathoz</h2>
+    <input type="text" class="input" name="wifi-ssid" placeholder="SSID" [(ngModel)]="ssid">
+    <input type="password" class="input" name="wifi-password" placeholder="Jelszó" [(ngModel)]="password">
+    <div class="btns">
+      <input (click)="close()" type="button" value="Mégse">
+      <input (click)="connect()" type="button" class="warning" value="Kapcsolódás">
+    </div>
+  </form>
+</app-popup-container>

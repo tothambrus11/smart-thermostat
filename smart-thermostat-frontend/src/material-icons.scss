@@ -24,4 +24,6 @@
 
 .material-icons{
   @include mat-icon();
+  cursor: default;
+  user-select: none;
 }
