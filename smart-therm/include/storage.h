@@ -5,8 +5,8 @@
 #include "TempInterval.h"
 
 extern const unsigned int CORRUPTION_CHECK_VALUE;
-const unsigned short WIFI_SSID_MAX_LENGTH = 16;
-const unsigned short WIFI_PWD_MAX_LENGTH = 16;
+const unsigned short WIFI_SSID_MAX_LENGTH = 20;
+const unsigned short WIFI_PWD_MAX_LENGTH = 20;
 const unsigned short LOGIN_USERNAME_MAX_LENGTH = 16;
 const unsigned short LOGIN_PASSWORD_MAX_LENGTH = 16;
 extern std::vector<TempInterval> tempIntervals;
