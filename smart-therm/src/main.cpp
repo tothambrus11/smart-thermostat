@@ -58,7 +58,10 @@ void setup() {
     readData();
     checkDataCorruption();
 
+    loadIntervalsInRAM();
+
     display.init();
+
     // display.flipScreenVertically();
     display.setContrast(255);
 

@@ -37,7 +37,6 @@ static unsigned int EEPROM_readAnything(int addr, T &value) {
 
 void readData() {
     EEPROM_readAnything<StoredData>(0, storedData);
-    loadIntervalsInRAM();
 }
 
 void saveData() {

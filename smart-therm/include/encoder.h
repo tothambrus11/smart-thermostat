@@ -1,7 +1,8 @@
-#include "RotaryEncoder.h"
+//#include "RotaryEncoder.h"
 
 #ifndef SMART_THERM_ENCODER_H
 #define SMART_THERM_ENCODER_H
+#include "Arduino.h"
 
 class Encoder {
     bool aState, aLastState;
