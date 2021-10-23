@@ -3,12 +3,12 @@
 <div class="card-container">
   <app-card style="order: -100">
     <app-card-row>
-      <img src="/assets/sunny.svg" alt="sunny">
+      <img src="./assets/sunny.svg" alt="sunny">
       <h2>Normális hőmérséklet</h2>
     </app-card-row>
 
     <app-card-row>
-      <img src="/assets/info.svg" alt="info">
+      <img src="./assets/info.svg" alt="info">
       <div class="inactive-color-text">Ez a hőmérséklet fog érvénybe lépni, ha semelyik másik intervallum nem aktív
         éppen. Ha egy
         időpontban egyszerre több intervallum is aktív lenne, akkor a sorban előbb lévő hőmérséklete fog aktiválódni.
@@ -26,12 +26,12 @@
     <app-interval-card *ngSwitchCase="IntervalType.NIGHT" [ngStyle]="{order: interval.order}" (up)="up(interval)"
                        (down)="down(interval)" [currentInterval]="interval">
       <app-card-row>
-        <img src="/assets/moon.svg" alt="night">
+        <img src="./assets/moon.svg" alt="night">
         <h2>Éjszakai hőmérséklet</h2>
       </app-card-row>
 
       <app-card-row>
-        <img src="/assets/info.svg" alt="info">
+        <img src="./assets/info.svg" alt="info">
         <div class="inactive-color-text">Ez a mód automatikusan aktiválódik a megadott intervallumban, de hamarabb is el
           lehet indítani, vagy megállítani a készüléken elhelyezett gombbal.
         </div>
@@ -64,7 +64,7 @@
       <div class="icon-button material-icons delete-icon" (click)="deleteInterval(interval)">delete</div>
 
       <app-card-row>
-        <img src="/assets/alarm.svg" alt="interval">
+        <img src="./assets/alarm.svg" alt="interval">
         <h2>Saját intervallum</h2>
       </app-card-row>
 

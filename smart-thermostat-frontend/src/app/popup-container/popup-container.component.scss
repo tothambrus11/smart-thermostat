@@ -21,20 +21,24 @@
   box-sizing: border-box;
   width: auto;
   max-width: min(800px, 100%);
-}
-.icon .material-icons{
-  color: colors.$inactive;
-  text-align: center;
-}
-h2{
-  font-size: 24px;
-}
-p{
-  // text-align: center;
-  color: colors.$inactive;
-}
-.btns{
-  display: flex;
-  gap:8px;
-  justify-content: center;
+
+
+  h2{
+    font-size: 24px;
+  }
+  p{
+    // text-align: center;
+    color: colors.$inactive;
+  }
+  .btns{
+    display: flex;
+    gap:8px;
+    justify-content: center;
+  }
+
+  .icon .material-icons{
+    color: colors.$inactive;
+    text-align: center;
+  }
+
 }
